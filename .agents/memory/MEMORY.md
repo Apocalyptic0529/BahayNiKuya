@@ -1,1 +1,0 @@
-- [Firebase credential input](firebase-credentials.md) — use complete JSON or a secure single-line `base64:` value when multiline secrets are rejected.

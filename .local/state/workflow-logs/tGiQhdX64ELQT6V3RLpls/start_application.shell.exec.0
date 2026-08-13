@@ -1,0 +1,43 @@
+[Thu Aug 13 09:16:09 2026] PHP 8.2.23 Development Server (http://0.0.0.0:5000) started
+[Thu Aug 13 09:16:10 2026] 127.0.0.1:60404 Accepted
+[Thu Aug 13 09:16:14 2026] 127.0.0.1:60404 [200]: GET /
+[Thu Aug 13 09:16:14 2026] 127.0.0.1:60404 Closing
+[Thu Aug 13 09:16:14 2026] 127.0.0.1:40260 Accepted
+[Thu Aug 13 09:16:20 2026] 127.0.0.1:40260 [200]: GET /
+[Thu Aug 13 09:16:20 2026] 127.0.0.1:40260 Closing
+[Thu Aug 13 09:16:20 2026] 127.0.0.1:40276 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40276 [200]: GET /
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40276 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40290 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40306 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40290 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40316 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40306 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40328 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40316 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40290 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40328 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40306 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40316 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:40328 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54928 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54936 Accepted
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54928 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54936 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54928 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54936 Closing
+[Thu Aug 13 09:16:26 2026] 127.0.0.1:54942 Accepted
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54942 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54942 Closing
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54944 Accepted
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54952 Accepted
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54944 [404]: GET /favicon.ico - No such file or directory
+[Thu Aug 13 09:16:27 2026] 127.0.0.1:54944 Closing
+[Thu Aug 13 09:16:28 2026] 127.0.0.1:54952 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:16:28 2026] 127.0.0.1:54952 Closing
+[Thu Aug 13 09:16:39 2026] 127.0.0.1:34256 Accepted
+[Thu Aug 13 09:16:45 2026] 127.0.0.1:34256 [200]: GET /
+[Thu Aug 13 09:16:45 2026] 127.0.0.1:34256 Closing
+[Thu Aug 13 09:17:08 2026] 127.0.0.1:59434 Accepted
+[Thu Aug 13 09:17:09 2026] 127.0.0.1:59434 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:17:09 2026] 127.0.0.1:59434 Closing

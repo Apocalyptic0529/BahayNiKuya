@@ -1,0 +1,262 @@
+[Thu Aug 13 09:18:13 2026] PHP 8.2.23 Development Server (http://0.0.0.0:5000) started
+[Thu Aug 13 09:18:14 2026] 127.0.0.1:55008 Accepted
+[Thu Aug 13 09:18:18 2026] 127.0.0.1:55008 [200]: GET /
+[Thu Aug 13 09:18:18 2026] 127.0.0.1:55008 Closing
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55018 Accepted
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55018 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55018 Closing
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55028 Accepted
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55028 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55028 Closing
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55044 Accepted
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55044 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55044 Closing
+[Thu Aug 13 09:18:19 2026] 127.0.0.1:55052 Accepted
+[Thu Aug 13 09:18:20 2026] 127.0.0.1:55052 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:18:20 2026] 127.0.0.1:55052 Closing
+[Thu Aug 13 09:18:21 2026] 127.0.0.1:55054 Accepted
+[Thu Aug 13 09:18:25 2026] 127.0.0.1:55054 [200]: GET /
+[Thu Aug 13 09:18:25 2026] 127.0.0.1:55054 Closing
+[Thu Aug 13 09:18:25 2026] 127.0.0.1:39434 Accepted
+[Thu Aug 13 09:18:26 2026] 127.0.0.1:39434 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:18:26 2026] 127.0.0.1:39434 Closing
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57514 Accepted
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57514 [200]: GET /login.php
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57514 Closing
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57524 Accepted
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57524 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57524 Closing
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57528 Accepted
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57528 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:19:01 2026] 127.0.0.1:57528 Closing
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51418 Accepted
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51418 [200]: GET /admin_register.php
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51418 Closing
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51420 Accepted
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51420 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51420 Closing
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51434 Accepted
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51434 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:20:32 2026] 127.0.0.1:51434 Closing
+[Thu Aug 13 09:21:09 2026] 127.0.0.1:41366 Accepted
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41366 [302]: POST /admin_register.php
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41366 Closing
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41380 Accepted
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41380 [200]: GET /login.php
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41380 Closing
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41386 Accepted
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41386 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41386 Closing
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41392 Accepted
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41392 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:21:10 2026] 127.0.0.1:41392 Closing
+[Thu Aug 13 09:21:27 2026] 127.0.0.1:56196 Accepted
+[Thu Aug 13 09:21:27 2026] 127.0.0.1:56196 [302]: POST /login.php
+[Thu Aug 13 09:21:27 2026] 127.0.0.1:56196 Closing
+[Thu Aug 13 09:21:27 2026] 127.0.0.1:56204 Accepted
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:56204 [200]: GET /admin_dashboard.php
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:56204 Closing
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48160 Accepted
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48160 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48160 Closing
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48164 Accepted
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48164 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48164 Closing
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48170 Accepted
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48170 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:21:32 2026] 127.0.0.1:48170 Closing
+[Thu Aug 13 09:21:44 2026] 127.0.0.1:46726 Accepted
+[Thu Aug 13 09:21:47 2026] 127.0.0.1:46726 [200]: GET /admin_dashboard.php
+[Thu Aug 13 09:21:47 2026] 127.0.0.1:46726 Closing
+[Thu Aug 13 09:21:47 2026] 127.0.0.1:46740 Accepted
+[Thu Aug 13 09:21:47 2026] 127.0.0.1:46740 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:21:47 2026] 127.0.0.1:46740 Closing
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46750 Accepted
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46750 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46750 Closing
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46754 Accepted
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46754 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46754 Closing
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46770 Accepted
+[Thu Aug 13 09:21:48 2026] 127.0.0.1:46770 [200]: GET /generated-icon.png
+[Thu Aug 13 09:21:49 2026] 127.0.0.1:46770 Closing
+[Thu Aug 13 09:22:00 2026] 127.0.0.1:39098 Accepted
+[Thu Aug 13 09:22:04 2026] 127.0.0.1:39098 [200]: GET /admin_dashboard.php?tab=properties
+[Thu Aug 13 09:22:04 2026] 127.0.0.1:39098 Closing
+[Thu Aug 13 09:22:04 2026] 127.0.0.1:57716 Accepted
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57716 [200]: GET /admin_dashboard.php?tab=properties
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57716 Closing
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57722 Accepted
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57722 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57722 Closing
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57730 Accepted
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57730 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57730 Closing
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57746 Accepted
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57746 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:22:08 2026] 127.0.0.1:57746 Closing
+[Thu Aug 13 09:22:13 2026] 127.0.0.1:47454 Accepted
+[Thu Aug 13 09:22:17 2026] 127.0.0.1:47454 [200]: GET /admin_dashboard.php?tab=properties&search=&property_type=&status=
+[Thu Aug 13 09:22:17 2026] 127.0.0.1:47454 Closing
+[Thu Aug 13 09:22:17 2026] 127.0.0.1:47470 Accepted
+[Thu Aug 13 09:22:21 2026] 127.0.0.1:47470 [200]: GET /admin_dashboard.php?tab=users
+[Thu Aug 13 09:22:21 2026] 127.0.0.1:47470 Closing
+[Thu Aug 13 09:22:21 2026] 127.0.0.1:47472 Accepted
+[Thu Aug 13 09:22:25 2026] 127.0.0.1:47472 [200]: GET /admin_dashboard.php
+[Thu Aug 13 09:22:25 2026] 127.0.0.1:47472 Closing
+[Thu Aug 13 09:22:25 2026] 127.0.0.1:41106 Accepted
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41106 [200]: GET /admin_dashboard.php?tab=users
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41106 Closing
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41116 Accepted
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41116 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41116 Closing
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41126 Accepted
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41126 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41126 Closing
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41138 Accepted
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41138 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:22:29 2026] 127.0.0.1:41138 Closing
+[Thu Aug 13 09:22:33 2026] 127.0.0.1:45016 Accepted
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45016 [200]: GET /admin_dashboard.php?tab=reports
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45016 Closing
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45028 Accepted
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45028 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45028 Closing
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45032 Accepted
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45032 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45032 Closing
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45034 Accepted
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45034 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:22:36 2026] 127.0.0.1:45034 Closing
+[Thu Aug 13 09:22:38 2026] 127.0.0.1:45050 Accepted
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:45050 [200]: GET /admin_dashboard.php?tab=profile
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:45050 Closing
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48798 Accepted
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48798 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48798 Closing
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48806 Accepted
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48806 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48806 Closing
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48808 Accepted
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48808 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:22:42 2026] 127.0.0.1:48808 Closing
+[Thu Aug 13 09:22:50 2026] 127.0.0.1:48812 Accepted
+[Thu Aug 13 09:22:52 2026] 127.0.0.1:48812 [200]: GET /index.php
+[Thu Aug 13 09:22:52 2026] 127.0.0.1:48812 Closing
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39066 Accepted
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39066 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39076 Accepted
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39076 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39066 Closing
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39076 Closing
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39078 Accepted
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39078 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39078 Closing
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39094 Accepted
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39094 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:22:53 2026] 127.0.0.1:39094 Closing
+[Thu Aug 13 09:23:01 2026] 127.0.0.1:39110 Accepted
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:39110 [200]: GET /
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:39110 Closing
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60886 Accepted
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60886 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60886 Closing
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60888 Accepted
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60888 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60888 Closing
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60898 Accepted
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60898 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60898 Closing
+[Thu Aug 13 09:23:05 2026] 127.0.0.1:60912 Accepted
+[Thu Aug 13 09:23:06 2026] 127.0.0.1:60912 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:23:06 2026] 127.0.0.1:60912 Closing
+[Thu Aug 13 09:23:53 2026] 127.0.0.1:40786 Accepted
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40786 [200]: GET /admin_dashboard.php
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40786 Closing
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40790 Accepted
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40790 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40790 Closing
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40800 Accepted
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40800 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40800 Closing
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40812 Accepted
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40812 [200]: GET /assets/js/admin.js
+[Thu Aug 13 09:23:57 2026] 127.0.0.1:40812 Closing
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40820 Accepted
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40820 [200]: GET /index.php?logout=1
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40820 Closing
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40832 Accepted
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40832 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:24:00 2026] 127.0.0.1:40832 Closing
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42520 Accepted
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42520 [200]: GET /index.php?logout=1
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42520 Closing
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42534 Accepted
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42534 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:24:12 2026] 127.0.0.1:42534 Closing
+[Thu Aug 13 09:24:24 2026] 127.0.0.1:53706 Accepted
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53706 [200]: GET /index.php
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53706 Closing
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53722 Accepted
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53722 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53722 Closing
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53734 Accepted
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53734 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53734 Closing
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53744 Accepted
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53744 [200]: GET /assets/js/map.js
+[Thu Aug 13 09:24:27 2026] 127.0.0.1:53744 Closing
+[Thu Aug 13 09:24:28 2026] 127.0.0.1:53750 Accepted
+[Thu Aug 13 09:24:28 2026] 127.0.0.1:53750 [200]: GET /api/properties.php?map=1
+[Thu Aug 13 09:24:28 2026] 127.0.0.1:53750 Closing
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53760 Accepted
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53760 [200]: GET /register.php
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53760 Closing
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53762 Accepted
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53762 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53762 Closing
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53772 Accepted
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53772 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:24:31 2026] 127.0.0.1:53772 Closing
+[Thu Aug 13 09:24:56 2026] 127.0.0.1:55610 Accepted
+[Thu Aug 13 09:24:57 2026] 127.0.0.1:55610 [302]: POST /register.php
+[Thu Aug 13 09:24:57 2026] 127.0.0.1:55610 Closing
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55626 Accepted
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55626 [200]: GET /login.php
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55626 Closing
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55636 Accepted
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55636 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55636 Closing
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55650 Accepted
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55650 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:24:58 2026] 127.0.0.1:55650 Closing
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34264 Accepted
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34264 [302]: POST /login.php
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34264 Closing
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34276 Accepted
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34286 Accepted
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34276 [302]: POST /login.php
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34276 Closing
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34286 [302]: POST /login.php
+[Thu Aug 13 09:25:15 2026] 127.0.0.1:34286 Closing
+[Thu Aug 13 09:25:16 2026] 127.0.0.1:34288 Accepted
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34288 [200]: GET /buyer_dashboard.php
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34288 Closing
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34292 Accepted
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34292 [302]: POST /login.php
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34292 Closing
+[Thu Aug 13 09:25:17 2026] 127.0.0.1:34298 Accepted
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34298 [200]: GET /buyer_dashboard.php
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34298 Closing
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34302 Accepted
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34302 [200]: GET /assets/css/styles.css
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34302 Closing
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34308 Accepted
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34308 [200]: GET /assets/js/main.js
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34308 Closing
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34316 Accepted
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34316 [200]: GET /assets/js/dashboard.js
+[Thu Aug 13 09:25:19 2026] 127.0.0.1:34316 Closing
+[Thu Aug 13 09:25:29 2026] 127.0.0.1:58342 Accepted
+[Thu Aug 13 09:25:29 2026] 127.0.0.1:58342 [200]: GET /seller_application.php
+[Thu Aug 13 09:25:29 2026] 127.0.0.1:58342 Closing

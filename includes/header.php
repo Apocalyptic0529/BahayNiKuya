@@ -2,6 +2,14 @@
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 require_once 'includes/auth.php';
+
+// Handle logout before any HTML is sent. Calling header() after the page
+// markup has started causes the "headers already sent" error.
+if (isset($_GET['logout']) && $_GET['logout'] == 1) {
+    logoutUser();
+    header('Location: index.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -87,11 +95,4 @@ require_once 'includes/auth.php';
             unset($_SESSION['error_message']);
         }
         
-        // Handle logout
-        if (isset($_GET['logout']) && $_GET['logout'] == 1) {
-            logoutUser();
-            $_SESSION['success_message'] = 'You have been logged out successfully.';
-            header('Location: index.php');
-            exit;
-        }
         ?>

@@ -836,6 +836,47 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Seller application approval/rejection
+    document.querySelectorAll('.approve-seller-btn, .reject-seller-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const applicationId = this.dataset.applicationId;
+            const userId = this.dataset.userId;
+            const isApproval = this.classList.contains('approve-seller-btn');
+            const action = isApproval ? 'approve_seller' : 'reject_seller';
+            const label = isApproval ? 'approve' : 'reject';
+
+            if (!confirm(`Are you sure you want to ${label} this seller application?`)) {
+                return;
+            }
+
+            fetch('api/admin/property_actions.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    application_id: applicationId,
+                    user_id: userId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.reload();
+                } else {
+                    alert(`Failed to ${label} seller application. ${data.message || ''}`);
+                }
+            })
+            .catch(error => {
+                console.error('Seller application error:', error);
+                alert(`An error occurred while trying to ${label} the seller application.`);
+            });
+        });
+    });
+
     // Delete user button click event
     document.querySelectorAll('.delete-user-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
@@ -844,7 +885,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const userName = this.dataset.userName;
 
             if (confirm(`Are you sure you want to delete user "${userName}"?`)) {
-                fetch('api/admin/user_actions.php', {
+                fetch('api/users.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -878,7 +919,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const currentRole = this.dataset.currentRole;
 
             if (confirm(`Are you sure you want to change the role for this user from ${currentRole} to ${newRole}?`)) {
-                fetch('api/admin/user_actions.php', {
+                fetch('api/users.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -886,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({
                         user_id: userId,
                         action: 'update_role',
-                        new_role: newRole
+                        role: newRole
                     })
                 })
                 .then(response => response.json())

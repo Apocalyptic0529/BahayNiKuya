@@ -5,8 +5,13 @@ require_once 'includes/config.php';
 require_once 'includes/functions.php';
 require_once 'includes/auth.php';
 
-// Require buyer authentication
+// Require buyer authentication. Sellers already have seller privileges,
+// so they should not be able to submit another seller application.
 requireAuth('buyer');
+if (hasRole('seller')) {
+    header('Location: seller_dashboard.php');
+    exit;
+}
 
 // Process application form
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

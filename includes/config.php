@@ -68,6 +68,11 @@ class FirebaseConnection {
     private array $serviceAccount = [];
     private ?string $accessToken = null;
     private int $tokenExpiresAt = 0;
+    // Reuse Firestore reads during a single PHP request. Many legacy pages
+    // issue multiple SQL queries against the same collection. Without this
+    // cache each query caused another full Firestore HTTP request.
+    private array $collectionCache = [];
+    private array $documentCache = [];
 
     public function __construct() {
         $this->projectId = trim((string) getenv('FIREBASE_PROJECT_ID'));
@@ -243,7 +248,11 @@ class FirebaseConnection {
         $fields = trim($match[1]);
         $collection = strtolower($match[2]);
         $tail = trim($match[3]);
-        $rows = $this->getCollection($collection);
+
+        // Fast path for the most common lookup pattern (for example,
+        // SELECT * FROM users WHERE id = ?). Firestore can address a document
+        // directly, avoiding a GET of the entire collection.
+        $rows = $this->getRowsForSelect($collection, $tail, $params);
         $rows = $this->applyJoins($rows, $tail, $collection);
 
         if (preg_match('/WHERE\s+(.+?)(?:\s+ORDER\s+BY|\s+LIMIT|$)/is', $tail, $where)) {
@@ -467,7 +476,128 @@ class FirebaseConnection {
         return date('Y-m-d H:i:s');
     }
 
+    private function getRowsForSelect(string $collection, string $tail, array $params): array {
+        // Only use the direct lookup optimization when there are no JOINs.
+        if (stripos($tail, 'JOIN ') === false &&
+            preg_match('/WHERE\s+([a-z_]+\.)?id\s*=\s*(\?|[-]?\d+)/i', $tail, $match)) {
+            $paramIndex = 0;
+            $idToken = trim($match[2]);
+            $id = $idToken === '?' ? ($params[$paramIndex] ?? null) : $idToken;
+            if ($id !== null && $id !== '') {
+                $document = $this->getDocument($collection, (string) $id);
+                if ($document === null) return [];
+                return [$document];
+            }
+        }
+
+        // Equality lookups on a single field can use Firestore's query API
+        // instead of downloading the whole collection. This is particularly
+        // useful for login-by-email and other common user lookups.
+        if (stripos($tail, 'JOIN ') === false &&
+            preg_match('/WHERE\s+([a-z_]+\.)?([a-z_]+)\s*=\s*(\?|\'[^\']*\'|"[^"]*")/i', $tail, $match)) {
+            $field = strtolower($match[2]);
+            $value = trim($match[3]);
+            $paramIndex = 0;
+            if ($value === '?') {
+                $value = $params[$paramIndex] ?? null;
+            } else {
+                $value = trim($value, "'\"");
+            }
+            if ($value !== null && $field !== 'id') {
+                $queried = $this->queryCollectionByEquality($collection, $field, $value);
+                if ($queried !== null) return $queried;
+            }
+        }
+
+        return $this->getCollection($collection);
+    }
+
+    private function getDocument(string $collection, string $id): ?array {
+        $cacheKey = strtolower($collection) . ':' . $id;
+        if (array_key_exists($cacheKey, $this->documentCache)) {
+            return $this->documentCache[$cacheKey];
+        }
+
+        try {
+            $response = $this->request('GET', $this->baseUrl() . '/' . rawurlencode($collection) . '/' . rawurlencode($id));
+        } catch (Throwable $exception) {
+            // A missing document is the Firestore equivalent of a SQL query
+            // returning zero rows. Do not turn a normal miss into a page error.
+            if (stripos($exception->getMessage(), 'HTTP 404') !== false ||
+                stripos($exception->getMessage(), 'NOT_FOUND') !== false) {
+                $this->documentCache[$cacheKey] = null;
+                return null;
+            }
+            throw $exception;
+        }
+        if (empty($response['name'])) {
+            $this->documentCache[$cacheKey] = null;
+            return null;
+        }
+        $document = $this->decodeFields($response['fields'] ?? []);
+        $document['id'] = isset($document['id']) ? (int) $document['id'] : (int) $id;
+        $this->documentCache[$cacheKey] = $document;
+        return $document;
+    }
+
+    private function queryCollectionByEquality(string $collection, string $field, $value): ?array {
+        $cacheKey = 'eq:' . strtolower($collection) . ':' . strtolower($field) . ':' . (string) $value;
+        if (array_key_exists($cacheKey, $this->documentCache)) {
+            return $this->documentCache[$cacheKey];
+        }
+
+        $encodedValue = $this->encodeFirestoreValue($value);
+        $body = [
+            'structuredQuery' => [
+                'from' => [['collectionId' => $collection]],
+                'where' => [
+                    'fieldFilter' => [
+                        'field' => ['fieldPath' => $field],
+                        'op' => 'EQUAL',
+                        'value' => $encodedValue
+                    ]
+                ]
+            ]
+        ];
+
+        try {
+            $response = $this->request('POST', $this->baseUrl() . ':runQuery', $body);
+        } catch (Throwable $exception) {
+            // Fall back to the existing collection reader if a field/query
+            // cannot be handled by Firestore.
+            return null;
+        }
+
+        $documents = [];
+        foreach ($response as $item) {
+            if (empty($item['document'])) continue;
+            $documentData = $item['document'];
+            $name = $documentData['name'] ?? '';
+            $id = basename($name);
+            $row = $this->decodeFields($documentData['fields'] ?? []);
+            $row['id'] = isset($row['id']) ? (int) $row['id'] : (int) $id;
+            $documents[] = $row;
+        }
+        $this->documentCache[$cacheKey] = $documents;
+        return $documents;
+    }
+
+    private function encodeFirestoreValue($value): array {
+        if ($value === null) return ['nullValue' => null];
+        if (is_bool($value)) return ['booleanValue' => $value];
+        if (is_int($value) || (is_string($value) && preg_match('/^-?\d+$/', $value))) {
+            return ['integerValue' => (string) $value];
+        }
+        if (is_float($value)) return ['doubleValue' => $value];
+        return ['stringValue' => (string) $value];
+    }
+
     private function getCollection(string $collection): array {
+        $collection = strtolower($collection);
+        if (array_key_exists($collection, $this->collectionCache)) {
+            return $this->collectionCache[$collection];
+        }
+
         $response = $this->request('GET', $this->baseUrl() . '/' . rawurlencode($collection));
         $documents = [];
         foreach (($response['documents'] ?? []) as $document) {
@@ -476,17 +606,24 @@ class FirebaseConnection {
             $row['id'] = isset($row['id']) ? (int) $row['id'] : (int) $id;
             $documents[] = $row;
         }
+        $this->collectionCache[$collection] = $documents;
         return $documents;
     }
 
     private function writeDocument(string $collection, string $id, array $document): void {
         $url = $this->baseUrl() . '/' . rawurlencode($collection) . '/' . rawurlencode($id);
         $this->request('PATCH', $url, ['fields' => $this->encodeFields($document)]);
+        $collection = strtolower($collection);
+        unset($this->collectionCache[$collection]);
+        unset($this->documentCache[$collection . ':' . $id]);
     }
 
     private function deleteDocument(string $collection, string $id): void {
         $url = $this->baseUrl() . '/' . rawurlencode($collection) . '/' . rawurlencode($id);
         $this->request('DELETE', $url);
+        $collection = strtolower($collection);
+        unset($this->collectionCache[$collection]);
+        unset($this->documentCache[$collection . ':' . $id]);
     }
 
     private function baseUrl(): string {

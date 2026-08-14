@@ -126,7 +126,20 @@ function isLoggedIn() {
  * @return bool True if user has the role
  */
 function hasRole($role) {
-    return isLoggedIn() && $_SESSION['user_role'] == $role;
+    if (!isLoggedIn()) {
+        return false;
+    }
+
+    $currentRole = $_SESSION['user_role'] ?? '';
+
+    // Sellers retain all buyer capabilities. The database still stores
+    // a single role value ('seller'), but the application treats sellers
+    // as buyers for buyer-only features such as favorites and inquiries.
+    if ($role === 'buyer') {
+        return in_array($currentRole, ['buyer', 'seller'], true);
+    }
+
+    return $currentRole === $role;
 }
 
 /**

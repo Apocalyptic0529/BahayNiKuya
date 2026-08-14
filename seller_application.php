@@ -1,4 +1,3 @@
-
 <?php
 $pageTitle = "Become a Seller";
 require_once 'includes/config.php';

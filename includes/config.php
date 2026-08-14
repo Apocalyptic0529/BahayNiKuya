@@ -1,4 +1,9 @@
 <?php
+// Start the session before any application code can emit output.
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 /**
  * Firebase / Cloud Firestore configuration.
  *
@@ -724,10 +729,6 @@ class FirebaseConnection {
 $conn = new FirebaseConnection();
 if ($conn->connect_error) {
     error_log($conn->connect_error);
-}
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
 }
 
 error_reporting(E_ALL);

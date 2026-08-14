@@ -98,6 +98,10 @@ function loginUser($email, $password) {
  * @return string Redirect URL
  */
 function getRedirectUrl($role) {
+    // Normalize role values from Firestore/session to avoid redirect failures
+    // caused by capitalization or accidental whitespace.
+    $role = strtolower(trim((string) $role));
+
     switch ($role) {
         case 'buyer':
             return 'buyer_dashboard.php';
@@ -130,7 +134,7 @@ function hasRole($role) {
         return false;
     }
 
-    $currentRole = $_SESSION['user_role'] ?? '';
+    $currentRole = strtolower(trim((string) ($_SESSION['user_role'] ?? '')));
 
     // Sellers retain all buyer capabilities. The database still stores
     // a single role value ('seller'), but the application treats sellers
@@ -200,15 +204,27 @@ function logoutUser() {
  * @param string $requiredRole Required role (optional)
  */
 function requireAuth($requiredRole = '') {
+    global $conn;
+
     if (!isLoggedIn()) {
-        // Redirect to login page
         header('Location: login.php');
         exit;
     }
-    
+
+    // Refresh the role from the database on protected pages. This prevents a
+    // manually approved seller from remaining stuck with an old buyer role in
+    // the PHP session until the next login.
+    $userId = intval($_SESSION['user_id']);
+    $roleResult = $conn->query("SELECT role FROM users WHERE id = $userId");
+    if ($roleResult && $roleResult->num_rows > 0) {
+        $roleRow = $roleResult->fetch_assoc();
+        if (isset($roleRow['role'])) {
+            $_SESSION['user_role'] = strtolower(trim((string) $roleRow['role']));
+        }
+    }
+
     if (!empty($requiredRole) && !hasRole($requiredRole)) {
-        // Redirect to appropriate dashboard
-        header('Location: ' . getRedirectUrl($_SESSION['user_role']));
+        header('Location: ' . getRedirectUrl($_SESSION['user_role'] ?? ''));
         exit;
     }
 }

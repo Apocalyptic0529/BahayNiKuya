@@ -41,12 +41,13 @@ if (isset($_GET['logout']) && $_GET['logout'] == 1) {
                     <li><a href="login.php">Login</a></li>
                     <li><a href="register.php">Register</a></li>
                 <?php else: ?>
-                    <?php if (hasRole('buyer')): ?>
-                        <li><a href="buyer_dashboard.php">My Dashboard</a></li>
-                    <?php elseif (hasRole('seller')): ?>
-                        <li><a href="seller_dashboard.php">Seller Dashboard</a></li>
+                    <?php $dashboardUrl = getRedirectUrl($_SESSION['user_role'] ?? ''); ?>
+                    <?php if (hasRole('seller')): ?>
+                        <li><a href="<?php echo htmlspecialchars($dashboardUrl, ENT_QUOTES); ?>">My Dashboard</a></li>
                     <?php elseif (hasRole('admin')): ?>
-                        <li><a href="admin_dashboard.php">Admin Panel</a></li>
+                        <li><a href="<?php echo htmlspecialchars($dashboardUrl, ENT_QUOTES); ?>">Admin Panel</a></li>
+                    <?php elseif (hasRole('buyer')): ?>
+                        <li><a href="<?php echo htmlspecialchars($dashboardUrl, ENT_QUOTES); ?>">My Dashboard</a></li>
                     <?php endif; ?>
                     <li>
                         <a href="#" class="user-menu-toggle">
@@ -54,22 +55,23 @@ if (isset($_GET['logout']) && $_GET['logout'] == 1) {
                             <i class="fas fa-chevron-down"></i>
                         </a>
                         <ul class="user-dropdown">
-                            <?php if (hasRole('buyer')): ?>
-                                <li><a href="buyer_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                                <li><a href="buyer_dashboard.php?tab=favorites"><i class="fas fa-heart"></i> Favorites</a></li>
-                                <li><a href="buyer_dashboard.php?tab=inquiries"><i class="fas fa-envelope"></i> My Inquiries</a></li>
-                            <?php elseif (hasRole('seller')): ?>
+                            <?php if (hasRole('seller')): ?>
                                 <li><a href="seller_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                                 <li><a href="add_property.php"><i class="fas fa-plus-circle"></i> Add Property</a></li>
                                 <li><a href="seller_dashboard.php?tab=properties"><i class="fas fa-home"></i> My Properties</a></li>
                                 <li><a href="seller_dashboard.php?tab=inquiries"><i class="fas fa-envelope"></i> Inquiries</a></li>
+                                <li><a href="buyer_dashboard.php?tab=favorites"><i class="fas fa-heart"></i> Favorites</a></li>
+                                <li><a href="buyer_dashboard.php?tab=inquiries"><i class="fas fa-envelope"></i> My Buyer Inquiries</a></li>
+                            <?php elseif (hasRole('buyer')): ?>
+                                <li><a href="buyer_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                                <li><a href="buyer_dashboard.php?tab=favorites"><i class="fas fa-heart"></i> Favorites</a></li>
+                                <li><a href="buyer_dashboard.php?tab=inquiries"><i class="fas fa-envelope"></i> My Inquiries</a></li>
                             <?php elseif (hasRole('admin')): ?>
                                 <li><a href="admin_dashboard.php"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
                                 <li><a href="admin_dashboard.php?tab=properties"><i class="fas fa-home"></i> Properties</a></li>
                                 <li><a href="admin_dashboard.php?tab=users"><i class="fas fa-users"></i> Users</a></li>
                                 <li><a href="admin_dashboard.php?tab=reports"><i class="fas fa-flag"></i> Reports</a></li>
                             <?php endif; ?>
-                            <li><a href="index.php?logout=1"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         </ul>
                     </li>
                 <?php endif; ?>

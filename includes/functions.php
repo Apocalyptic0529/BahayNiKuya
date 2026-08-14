@@ -61,7 +61,12 @@ function getProperties($filters = []) {
         }
 
         if (isset($filters['status_not']) && !empty($filters['status_not'])) {
-            $query .= " AND p.status != '" . sanitize($filters['status_not']) . "'";
+            if (is_array($filters['status_not'])) {
+                $excluded = array_map(fn($v) => "'" . sanitize($v) . "'", $filters['status_not']);
+                $query .= ' AND p.status NOT IN (' . implode(',', $excluded) . ')';
+            } else {
+                $query .= " AND p.status != '" . sanitize($filters['status_not']) . "'";
+            }
         }
         
         if (isset($filters['search']) && !empty($filters['search'])) {
@@ -135,6 +140,7 @@ function getPropertyById($id) {
         'latitude' => 0,
         'longitude' => 0,
         'property_type' => '',
+        'listing_type' => 'sale',
         'status' => '',
         'featured' => 0,
         'image1' => '',

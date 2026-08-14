@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const propertyId = this.getAttribute('data-property-id');
                 const propertyTitle = this.getAttribute('data-property-title');
 
-                if (confirm(`Are you sure you want to delete "${propertyTitle}"? This action cannot be undone.`)) {
+                if (confirm(`Are you sure you want to delete "${propertyTitle}"? An administrator will review the request before it is permanently deleted.`)) {
                     // Send delete request
                     fetch('api/properties.php', {
                         method: 'POST',

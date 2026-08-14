@@ -78,31 +78,46 @@ if (!$property) {
 
 switch ($action) {
     case 'approve':
-        // Get the listing type first
-        $listingQuery = "SELECT listing_type FROM properties WHERE id = ?";
-        $stmt = $conn->prepare($listingQuery);
-        $stmt->bind_param('i', $propertyId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $listing = $result->fetch_assoc();
-
-        // Update property status based on listing type
-        $listingType = $property['listing_type'] ?? 'sale';
-        $newStatus = ($listingType === 'rent') ? 'for_rent' : 'for_sale';
-        $query = "UPDATE properties SET status = ? WHERE id = ?";
+        // Only pending properties can be approved.
+        if (($property['status'] ?? '') !== 'pending') {
+            jsonResponse(['status' => 'error', 'message' => 'Only pending properties can be approved.'], 400);
+        }
+        $listingType = strtolower(trim((string)($property['listing_type'] ?? 'sale')));
+        if (!in_array($listingType, ['sale', 'rent'], true)) {
+            jsonResponse(['status' => 'error', 'message' => 'Property has an invalid listing type. Please edit it before approving.'], 400);
+        }
+        $newStatus = $listingType === 'rent' ? 'for_rent' : 'for_sale';
+        $query = "UPDATE properties SET status = ? WHERE id = ? AND status = 'pending'";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("si", $newStatus, $propertyId);
         break;
 
     case 'reject':
-        // Delete the property
-        $query = "DELETE FROM properties WHERE id = ?";
+        // Keep the property record so the seller/admin can see that it was rejected.
+        if (($property['status'] ?? '') !== 'pending') {
+            jsonResponse(['status' => 'error', 'message' => 'Only pending properties can be rejected.'], 400);
+        }
+        $newStatus = 'rejected';
+        $query = "UPDATE properties SET status = ? WHERE id = ? AND status = 'pending'";
         $stmt = $conn->prepare($query);
-        $stmt->bind_param('i', $propertyId);
+        $stmt->bind_param('si', $newStatus, $propertyId);
         break;
 
+    case 'approve_deletion':
+        if (($property['status'] ?? '') !== 'pending_deletion') {
+            jsonResponse(['status' => 'error', 'message' => 'This property is not awaiting deletion approval.'], 400);
+        }
+        $query = "DELETE FROM properties WHERE id = ? AND status = 'pending_deletion'";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('i', $propertyId);
+        if ($stmt->execute()) {
+            jsonResponse(['status' => 'success', 'message' => 'Property deletion approved.']);
+        }
+        jsonResponse(['status' => 'error', 'message' => 'Failed to delete property.'], 500);
+
     case 'delete':
-        // Delete property images first
+        // Direct permanent deletion is available only to administrators because
+        // this endpoint itself requires admin authentication.
         $query = "DELETE FROM properties WHERE id = ?";
         $stmt = $conn->prepare($query);
         $stmt->bind_param('i', $propertyId);
@@ -117,6 +132,9 @@ switch ($action) {
 
     case 'feature':
     case 'unfeature':
+        if (!in_array($property['status'] ?? '', ['for_sale', 'for_rent'], true)) {
+            jsonResponse(['status' => 'error', 'message' => 'Only approved properties can be featured.'], 400);
+        }
         $featured = ($action === 'feature') ? 1 : 0;
         $query = "UPDATE properties SET featured = ? WHERE id = ?";
         $stmt = $conn->prepare($query);

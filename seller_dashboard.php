@@ -152,6 +152,9 @@ require_once 'includes/header.php';
                                                     case 'for_rent': echo 'badge-info'; break;
                                                     case 'sold': echo 'badge-success'; break;
                                                     case 'rented': echo 'badge-secondary'; break;
+                                                    case 'pending': echo 'badge-warning'; break;
+                                                    case 'rejected': echo 'badge-danger'; break;
+                                                    case 'pending_deletion': echo 'badge-warning'; break;
                                                 }
                                             ?>">
                                                 <?php echo str_replace('_', ' ', ucfirst($property['status'])); ?>
@@ -250,6 +253,7 @@ require_once 'includes/header.php';
                                 <tr>
                                     <th>Property</th>
                                     <th>Price</th>
+                                    <th>Listing</th>
                                     <th>Type</th>
                                     <th>Status</th>
                                     <th>Featured</th>
@@ -267,6 +271,7 @@ require_once 'includes/header.php';
                                             </div>
                                         </td>
                                         <td><?php echo formatCurrency($property['price']); ?></td>
+                                        <td><?php echo (($property['listing_type'] ?? '') === 'rent') ? 'For Rent' : 'For Sale'; ?></td>
                                         <td><?php echo ucfirst($property['property_type']); ?></td>
                                         <td>
                                             <span class="badge <?php 
@@ -275,6 +280,9 @@ require_once 'includes/header.php';
                                                     case 'for_rent': echo 'badge-info'; break;
                                                     case 'sold': echo 'badge-success'; break;
                                                     case 'rented': echo 'badge-secondary'; break;
+                                                    case 'pending': echo 'badge-warning'; break;
+                                                    case 'rejected': echo 'badge-danger'; break;
+                                                    case 'pending_deletion': echo 'badge-warning'; break;
                                                 }
                                             ?>">
                                                 <?php echo str_replace('_', ' ', ucfirst($property['status'])); ?>
@@ -290,7 +298,7 @@ require_once 'includes/header.php';
                                             <div class="btn-group">
                                                 <a href="property_details.php?id=<?php echo $property['id']; ?>" class="btn btn-info btn-sm">View</a>
                                                 <a href="edit_property.php?id=<?php echo $property['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
-                                                <a href="#" class="btn btn-danger btn-sm delete-property-btn" data-property-id="<?php echo $property['id']; ?>" data-property-title="<?php echo htmlspecialchars($property['title']); ?>">Delete</a>
+                                                <a href="#" class="btn btn-danger btn-sm delete-property-btn" data-property-id="<?php echo $property['id']; ?>" data-property-title="<?php echo htmlspecialchars($property['title']); ?>">Request Delete</a>
                                             </div>
                                         </td>
                                     </tr>

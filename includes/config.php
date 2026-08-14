@@ -207,12 +207,36 @@ class FirebaseConnection {
         }
         $collection = strtolower($match[1]);
         $assignments = $this->parseAssignments($match[2]);
-        $documents = $this->getCollection($collection);
+        $whereClause = trim($match[3]);
         $this->affected_rows = 0;
-        foreach ($documents as $document) {
-            if (!$this->matches($document, $match[3], $params, $assignments['used'])) {
-                continue;
+
+        // Fast path for updates targeting a single numeric document ID. This
+        // avoids downloading the entire collection for common operations such
+        // as approving a property or changing a user's role.
+        if (preg_match('/^(?:\(?\s*)?(?:[a-z_]+\.)?id\s*=\s*(\?|[-]?\d+)(?:\s*\)?)(?:\s+AND\s+(.+))?$/i', $whereClause, $idMatch)) {
+            $idToken = trim($idMatch[1]);
+            $id = $idToken === '?' ? ($params[$assignments['used']] ?? null) : $idToken;
+            if ($id !== null && $id !== '') {
+                $document = $this->getDocument($collection, (string) $id);
+                if ($document !== null) {
+                    $remaining = trim($idMatch[2] ?? '');
+                    if ($remaining === '' || $this->matches($document, $remaining, $params, $assignments['used'] + 1)) {
+                        $offset = $assignments['used'];
+                        foreach ($assignments['columns'] as $column) {
+                            $document[$column] = $this->resolveValue($assignments['values'][$column], $params, $offset);
+                        }
+                        $document['updated_at'] = $this->now();
+                        $this->writeDocument($collection, (string) $document['id'], $document);
+                        $this->affected_rows = 1;
+                    }
+                }
+                return true;
             }
+        }
+
+        $documents = $this->getCollection($collection);
+        foreach ($documents as $document) {
+            if (!$this->matches($document, $whereClause, $params, $assignments['used'])) continue;
             $offset = $assignments['used'];
             foreach ($assignments['columns'] as $column) {
                 $document[$column] = $this->resolveValue($assignments['values'][$column], $params, $offset);
@@ -229,12 +253,27 @@ class FirebaseConnection {
             throw new RuntimeException('Could not parse delete query.');
         }
         $collection = strtolower($match[1]);
-        $documents = $this->getCollection($collection);
+        $whereClause = trim($match[2] ?? '');
         $this->affected_rows = 0;
-        foreach ($documents as $document) {
-            if (!empty($match[2]) && !$this->matches($document, $match[2], $params, 0)) {
-                continue;
+
+        // Fast path for DELETE ... WHERE id = ...
+        if (preg_match('/^(?:\(?\s*)?(?:[a-z_]+\.)?id\s*=\s*(\?|[-]?\d+)(?:\s*\)?)(?:\s+AND\s+(.+))?$/i', $whereClause, $idMatch)) {
+            $idToken = trim($idMatch[1]);
+            $id = $idToken === '?' ? ($params[0] ?? null) : $idToken;
+            if ($id !== null && $id !== '') {
+                $document = $this->getDocument($collection, (string) $id);
+                $remaining = trim($idMatch[2] ?? '');
+                if ($document !== null && ($remaining === '' || $this->matches($document, $remaining, $params, 1))) {
+                    $this->deleteDocument($collection, (string) $document['id']);
+                    $this->affected_rows = 1;
+                }
+                return true;
             }
+        }
+
+        $documents = $this->getCollection($collection);
+        foreach ($documents as $document) {
+            if ($whereClause !== '' && !$this->matches($document, $whereClause, $params, 0)) continue;
             $this->deleteDocument($collection, (string) $document['id']);
             $this->affected_rows++;
         }

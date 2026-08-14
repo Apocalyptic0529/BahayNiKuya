@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $latitude = isset($_POST['latitude']) ? floatval($_POST['latitude']) : 0;
     $longitude = isset($_POST['longitude']) ? floatval($_POST['longitude']) : 0;
     $property_type = isset($_POST['property_type']) ? sanitize($_POST['property_type']) : '';
+    $listing_type = isset($_POST['listing_type']) ? sanitize($_POST['listing_type']) : '';
     $featured = isset($_POST['featured']) ? 1 : 0;
     $status = 'pending';
 
@@ -117,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'latitude' => $_POST['latitude'] ?? '',
         'longitude' => $_POST['longitude'] ?? '',
         'property_type' => $property_type,
+        'listing_type' => $listing_type,
         'featured' => $featured,
         'image1' => $image1,
         'image2' => $image2,
@@ -141,6 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($state === '') $validationErrors[] = 'State/Province is required.';
     if ($zip_code === '') $validationErrors[] = 'ZIP code is required.';
     if ($property_type === '') $validationErrors[] = 'Property type is required.';
+    if (!in_array($listing_type, ['sale', 'rent'], true)) $validationErrors[] = 'Please choose whether the property is for sale or for rent.';
     if ($image1 === '') $validationErrors[] = 'At least one property image is required.';
     if ($uploadError !== '') $validationErrors[] = $uploadError;
 
@@ -152,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $query = "INSERT INTO properties (
                 seller_id, title, description, price, bedrooms, bathrooms, area,
                 address, city, state, zip_code, latitude, longitude,
-                property_type, status, featured, image1, image2, image3, image4
+                property_type, listing_type, status, featured, image1, image2, image3, image4
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         // Move local draft images to the permanent property upload directory.
@@ -182,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "issdddssssddssisssss",
                 $sellerId, $title, $description, $price, $bedrooms, $bathrooms, $area,
                 $address, $city, $state, $zip_code, $latitude, $longitude,
-                $property_type, $status, $featured, $image1, $image2, $image3, $image4
+                $property_type, $listing_type, $status, $featured, $image1, $image2, $image3, $image4
             );
 
             if ($stmt->execute()) {
@@ -239,6 +242,14 @@ require_once 'includes/header.php';
                     <input type="number" id="price" name="price" class="form-control" min="1" step="0.01" value="<?php echo htmlspecialchars($propertyDraft['price'] ?? '', ENT_QUOTES); ?>" required>
                 </div>
 
+                <div class="form-group">
+                    <label for="listing_type" class="form-label">Listing Type *</label>
+                    <select id="listing_type" name="listing_type" class="form-select" required>
+                        <option value="">Select Listing Type</option>
+                        <option value="sale" <?php echo (($propertyDraft['listing_type'] ?? '') === 'sale') ? 'selected' : ''; ?>>For Sale</option>
+                        <option value="rent" <?php echo (($propertyDraft['listing_type'] ?? '') === 'rent') ? 'selected' : ''; ?>>For Rent</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <label for="property_type" class="form-label">Property Type *</label>
                     <select id="property_type" name="property_type" class="form-select" required>

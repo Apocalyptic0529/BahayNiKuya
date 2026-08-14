@@ -17,6 +17,13 @@ if (!$property) {
     exit;
 }
 
+$isOwner = isLoggedIn() && intval($property['seller_id'] ?? 0) === intval($_SESSION['user_id'] ?? 0);
+if (in_array($property['status'] ?? '', ['pending', 'rejected', 'pending_deletion'], true) && !hasRole('admin') && !$isOwner) {
+    $_SESSION['error_message'] = 'This property is not currently available.';
+    header('Location: index.php');
+    exit;
+}
+
 // Check if property is in user's favorites
 $isFavorite = false;
 if (isLoggedIn() && hasRole('buyer')) {
@@ -92,7 +99,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-tag"></i>
-                    <span><?php echo str_replace('_', ' ', ucfirst($property['status'])); ?></span>
+                    <span><?php echo (($property['listing_type'] ?? '') === 'rent') ? 'For Rent' : 'For Sale'; ?></span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-calendar-alt"></i>

@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     
     // Only show pending properties to admins
     if (!hasRole('admin')) {
-        $filters['status_not'] = 'pending';
+        $filters['status_not'] = ['pending', 'rejected'];
     }
     $properties = getProperties($filters);
     
@@ -78,8 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (isset($_GET['id']) && !empty($_GET['id'])) {
         $propertyId = intval($_GET['id']);
         $property = getPropertyById($propertyId);
-        
-        if ($property) {
+        $canViewPrivate = hasRole('admin') || (isLoggedIn() && intval($property['seller_id'] ?? 0) === intval($_SESSION['user_id'] ?? 0));
+        if ($property && (!in_array($property['status'] ?? '', ['pending', 'rejected', 'pending_deletion'], true) || $canViewPrivate)) {
             echo json_encode([
                 'status' => 'success',
                 'property' => $property
@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     switch ($action) {
         case 'request_delete':
-            // Direct property deletion for seller
+            // Seller requests deletion; admin must approve it before permanent deletion.
             if (!hasRole('seller')) {
                 echo json_encode([
                     'status' => 'error',
@@ -152,14 +152,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Delete property directly
-            $query = "DELETE FROM properties WHERE id = ?";
+            $query = "UPDATE properties SET status = 'pending_deletion' WHERE id = ? AND status IN ('pending', 'for_sale', 'for_rent', 'sold', 'rented')";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("i", $propertyId);
 
             if ($stmt->execute()) {
                 echo json_encode([
                     'status' => 'success',
-                    'message' => 'Property deleted successfully'
+                    'message' => 'Deletion request submitted. An administrator must approve it.'
                 ]);
             } else {
                 echo json_encode([
@@ -227,7 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
             
-            // Check if user has permission to update featured status
+            // Only admins can feature/unfeature listings.
             if (!hasRole('admin')) {
                 echo json_encode([
                     'status' => 'error',
@@ -375,7 +375,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = "UPDATE properties SET status = ? WHERE id = ?";
             $newStatus = isset($requestData['new_status']) ? sanitize($requestData['new_status']) : 'for_sale';
             $stmt = $conn->prepare($query);
-            $stmt->bind_param("i", $propertyId);
+            $stmt->bind_param("si", $newStatus, $propertyId);
             
             if ($stmt->execute()) {
                 echo json_encode([
@@ -393,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
             
         case 'reject_property':
-            // Reject and delete property (admin only)
+            // Reject property without deleting it (admin only)
             if (!hasRole('admin')) {
                 echo json_encode([
                     'status' => 'error',
@@ -404,15 +404,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $propertyId = isset($requestData['property_id']) ? intval($requestData['property_id']) : 0;
             
-            // Delete property
-            $query = "DELETE FROM properties WHERE id = ?";
+            // Keep the property record and mark it rejected.
+            $query = "UPDATE properties SET status = 'rejected' WHERE id = ? AND status = 'pending'";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("i", $propertyId);
             
             if ($stmt->execute()) {
                 echo json_encode([
                     'status' => 'success',
-                    'message' => 'Property rejected and deleted'
+                    'message' => 'Property rejected'
                 ]);
             } else {
                 echo json_encode([

@@ -315,6 +315,8 @@ require_once 'includes/header.php';
                                                 case 'sold': echo 'badge-success'; break;
                                                 case 'rented': echo 'badge-secondary'; break;
                                                 case 'pending_deletion': echo 'badge-warning'; break;
+                                                case 'rejected': echo 'badge-danger'; break;
+                                                    case 'pending_deletion': echo 'badge-warning'; break;
                                             }
                                         ?>">
                                             <?php echo str_replace('_', ' ', ucfirst($property['status'])); ?>
@@ -334,6 +336,12 @@ require_once 'includes/header.php';
                                         <div class="btn-group">
                                             <a href="property_details.php?id=<?php echo $property['id']; ?>" class="btn btn-info btn-sm">View</a>
                                             <a href="edit_property.php?id=<?php echo $property['id']; ?>" class="btn btn-primary btn-sm">Edit</a>
+                                            <?php if ($property['status'] === 'pending'): ?>
+                                                <button class="btn btn-success btn-sm approve-property-btn" data-property-id="<?php echo $property['id']; ?>">Approve</button>
+                                                <button class="btn btn-danger btn-sm reject-property-btn" data-property-id="<?php echo $property['id']; ?>">Reject</button>
+                                            <?php elseif ($property['status'] === 'pending_deletion'): ?>
+                                                <button class="btn btn-success btn-sm approve-deletion-btn" data-property-id="<?php echo $property['id']; ?>">Approve Deletion</button>
+                                            <?php endif; ?>
                                             <a href="#" class="btn btn-danger btn-sm delete-property-btn" data-property-id="<?php echo $property['id']; ?>" data-property-title="<?php echo htmlspecialchars($property['title']); ?>">Delete</a>
                                         </div>
                                     </td>
@@ -833,6 +841,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
                 alert('An error occurred while toggling featured status.');
             });
+        });
+    });
+
+    // Approve seller-requested property deletion
+    document.querySelectorAll('.approve-deletion-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const propertyId = this.dataset.propertyId;
+            if (!confirm('Permanently delete this property? This cannot be undone.')) return;
+            fetch('api/admin/property_actions.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({property_id: propertyId, action: 'approve_deletion'})
+            }).then(r => r.json()).then(data => {
+                if (data.status === 'success') window.location.reload();
+                else alert(data.message || 'Failed to approve deletion.');
+            }).catch(() => alert('An error occurred while approving the deletion.'));
         });
     });
 

@@ -33,33 +33,7 @@
                     </ul>
                 </div>
                 
-                <div class="footer-section contact-form">
-                    <h3>Subscribe to Newsletter</h3>
-                    <form id="newsletter-form" action="api/newsletter.php" method="post">
-                        <input type="email" name="email" class="text-input contact-input" placeholder="Your email address..." required>
-                        <button type="submit" class="btn btn-primary">Subscribe</button>
-                    </form>
-                    <div id="newsletter-message"></div>
-                    <script>
-                    document.getElementById('newsletter-form').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        fetch(this.action, {
-                            method: 'POST',
-                            body: new FormData(this)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById('newsletter-message').innerHTML = 
-                                `<div class="alert alert-${data.status === 'success' ? 'success' : 'danger'}">${data.message}</div>`;
-                            if(data.status === 'success') this.reset();
-                        })
-                        .catch(error => {
-                            document.getElementById('newsletter-message').innerHTML = 
-                                '<div class="alert alert-danger">An error occurred. Please try again.</div>';
-                        });
-                    });
-                    </script>
-                </div>
+
             </div>
             
             <div class="footer-bottom">

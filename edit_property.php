@@ -47,13 +47,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $latitude = isset($_POST['latitude']) ? floatval($_POST['latitude']) : 0;
     $longitude = isset($_POST['longitude']) ? floatval($_POST['longitude']) : 0;
     $property_type = isset($_POST['property_type']) ? sanitize($_POST['property_type']) : '';
-    $status = isset($_POST['status']) ? sanitize($_POST['status']) : '';
+    $listing_type = isset($_POST['listing_type']) ? sanitize($_POST['listing_type']) : ($property['listing_type'] ?? 'sale');
+    $status = hasRole('admin') ? (isset($_POST['status']) ? sanitize($_POST['status']) : '') : 'pending';
     $featured = isset($_POST['featured']) ? 1 : 0;
     
     // Validate required fields
     if (empty($title) || empty($description) || $price <= 0 || $bedrooms <= 0 || 
         $bathrooms <= 0 || $area <= 0 || empty($address) || empty($city) || 
-        empty($state) || empty($zip_code) || empty($property_type) || empty($status)) {
+        empty($state) || empty($zip_code) || empty($property_type) || !in_array($listing_type, ['sale', 'rent'], true) || ($status === '')) {
         
         $_SESSION['error_message'] = 'All fields are required.';
     } else {
@@ -102,16 +103,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $query = "UPDATE properties SET 
                     title = ?, description = ?, price = ?, bedrooms = ?, bathrooms = ?, 
                     area = ?, address = ?, city = ?, state = ?, zip_code = ?, 
-                    latitude = ?, longitude = ?, property_type = ?, status = ?, 
+                    latitude = ?, longitude = ?, property_type = ?, listing_type = ?, status = ?, 
                     featured = ?, image1 = ?, image2 = ?, image3 = ?, image4 = ?
                 WHERE id = ?";
                 
             $stmt = $conn->prepare($query);
             $stmt->bind_param(
-                "ssdddssssddssisssssi",
+                "ssdddssssddssississsi",
                 $title, $description, $price, $bedrooms, $bathrooms, $area,
                 $address, $city, $state, $zip_code, $latitude, $longitude,
-                $property_type, $status, $featured, $image1, $image2, $image3, $image4,
+                $property_type, $listing_type, $status, $featured, $image1, $image2, $image3, $image4,
                 $propertyId
             );
             
@@ -161,6 +162,13 @@ require_once 'includes/header.php';
                 </div>
                 
                 <div class="form-group">
+                    <label for="listing_type" class="form-label">Listing Type *</label>
+                    <select id="listing_type" name="listing_type" class="form-select" required>
+                        <option value="sale" <?php echo (($property['listing_type'] ?? 'sale') === 'sale') ? 'selected' : ''; ?>>For Sale</option>
+                        <option value="rent" <?php echo (($property['listing_type'] ?? '') === 'rent') ? 'selected' : ''; ?>>For Rent</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="property_type" class="form-label">Property Type *</label>
                     <select id="property_type" name="property_type" class="form-select" required>
                         <option value="">Select Type</option>
@@ -174,13 +182,19 @@ require_once 'includes/header.php';
                 
                 <div class="form-group">
                     <label for="status" class="form-label">Status *</label>
-                    <select id="status" name="status" class="form-select" required>
-                        <option value="">Select Status</option>
-                        <option value="for_sale" <?php if($property['status'] == 'for_sale') echo 'selected'; ?>>For Sale</option>
-                        <option value="for_rent" <?php if($property['status'] == 'for_rent') echo 'selected'; ?>>For Rent</option>
-                        <option value="sold" <?php if($property['status'] == 'sold') echo 'selected'; ?>>Sold</option>
-                        <option value="rented" <?php if($property['status'] == 'rented') echo 'selected'; ?>>Rented</option>
+                    <select id="status" name="status" class="form-select" required <?php echo hasRole('seller') ? 'disabled' : ''; ?>>
+                        <?php if (hasRole('admin')): ?>
+                            <option value="pending" <?php if($property['status'] == 'pending') echo 'selected'; ?>>Pending</option>
+                            <option value="for_sale" <?php if($property['status'] == 'for_sale') echo 'selected'; ?>>For Sale</option>
+                            <option value="for_rent" <?php if($property['status'] == 'for_rent') echo 'selected'; ?>>For Rent</option>
+                            <option value="sold" <?php if($property['status'] == 'sold') echo 'selected'; ?>>Sold</option>
+                            <option value="rented" <?php if($property['status'] == 'rented') echo 'selected'; ?>>Rented</option>
+                            <option value="rejected" <?php if($property['status'] == 'rejected') echo 'selected'; ?>>Rejected</option>
+                        <?php else: ?>
+                            <option value="pending" selected>Pending Admin Approval</option>
+                        <?php endif; ?>
                     </select>
+                    <?php if (hasRole('seller')): ?><small class="form-help">Editing a property sends it back to Pending Admin Approval.</small><?php endif; ?>
                 </div>
             </div>
             

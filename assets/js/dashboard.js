@@ -42,129 +42,99 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle inquiry status update
-    const updateInquiryStatusBtns = document.querySelectorAll('.update-inquiry-status');
+    // Inquiry status/reply controls use event delegation so they remain responsive
+    // even after a dashboard section is refreshed or updated dynamically.
+    document.addEventListener('click', function(e) {
+        const statusBtn = e.target.closest('.update-inquiry-status');
+        if (statusBtn) {
+            e.preventDefault();
+            if (statusBtn.disabled) return;
+            const inquiryId = statusBtn.getAttribute('data-inquiry-id');
+            const status = statusBtn.getAttribute('data-status');
+            statusBtn.disabled = true;
+            const originalText = statusBtn.textContent;
+            statusBtn.textContent = 'Updating...';
 
-    if (updateInquiryStatusBtns.length) {
-        updateInquiryStatusBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const inquiryId = this.getAttribute('data-inquiry-id');
-                const status = this.getAttribute('data-status');
-
-                // Send update request
-                fetch('api/inquiries.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        action: 'update_status',
-                        inquiry_id: inquiryId,
-                        status: status
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Error updating inquiry status');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while updating the inquiry.');
-                });
+            fetch('api/inquiries.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'update_status', inquiry_id: inquiryId, status: status})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') window.location.reload();
+                else throw new Error(data.message || 'Error updating inquiry status');
+            })
+            .catch(error => {
+                console.error(error);
+                statusBtn.disabled = false;
+                statusBtn.textContent = originalText;
+                alert(error.message || 'An error occurred while updating the inquiry.');
             });
+            return;
+        }
+
+        const replyBtn = e.target.closest('.show-reply-form');
+        if (replyBtn) {
+            e.preventDefault();
+            const inquiryId = replyBtn.getAttribute('data-inquiry-id');
+            const replyForm = document.getElementById(`reply-form-${inquiryId}`);
+            if (!replyForm) return;
+            const hidden = replyForm.style.display === 'none' || !replyForm.style.display;
+            replyForm.style.display = hidden ? 'block' : 'none';
+            replyBtn.textContent = hidden ? 'Cancel Reply' : (replyBtn.dataset.defaultText || 'Reply');
+            if (hidden) {
+                const textarea = replyForm.querySelector('textarea[name="reply_message"]');
+                if (textarea) textarea.focus();
+            }
+        }
+    });
+
+    document.addEventListener('submit', function(e) {
+        const form = e.target.closest('.reply-inquiry-form');
+        if (!form) return;
+        e.preventDefault();
+        if (form.dataset.submitting === '1') return;
+
+        const inquiryId = form.querySelector('[name="inquiry_id"]')?.value;
+        const textarea = form.querySelector('[name="reply_message"]');
+        const message = textarea ? textarea.value.trim() : '';
+        if (!inquiryId || !message) {
+            alert('Please enter a reply message.');
+            return;
+        }
+
+        form.dataset.submitting = '1';
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn ? submitBtn.textContent : 'Send Reply';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+        }
+
+        fetch('api/inquiries.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({action: 'reply', inquiry_id: inquiryId, message: message})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.reload();
+                return;
+            }
+            throw new Error(data.message || 'An error occurred while sending your reply.');
+        })
+        .catch(error => {
+            console.error(error);
+            form.dataset.submitting = '0';
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+            alert(error.message || 'An error occurred while sending your reply.');
         });
-    }
-
-    // Reply to inquiry
-    const replyInquiryForms = document.querySelectorAll('.reply-inquiry-form');
-
-    if (replyInquiryForms.length) {
-        replyInquiryForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const inquiryId = this.querySelector('[name="inquiry_id"]').value;
-                const message = this.querySelector('[name="reply_message"]').value;
-
-                // Validate message
-                if (!message.trim()) {
-                    alert('Please enter a reply message.');
-                    return;
-                }
-
-                // Send reply
-                fetch('api/inquiries.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        inquiry_id: inquiryId,
-                        message: message,
-                        action: 'reply'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        // Show success message and reset form
-                        alert(data.message || 'Reply sent successfully.');
-                        form.reset();
-
-                        // Close reply form if modal
-                        const modal = form.closest('.modal');
-                        if (modal) {
-                            modal.style.display = 'none';
-                        }
-
-                        // Update inquiry status if available
-                        const statusBadge = document.querySelector(`.inquiry-status[data-inquiry-id="${inquiryId}"]`);
-                        if (statusBadge) {
-                            statusBadge.textContent = 'Replied';
-                            statusBadge.className = 'inquiry-status badge badge-success';
-                        }
-                    } else {
-                        alert(data.message || 'An error occurred');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while sending your reply.');
-                });
-            });
-        });
-    }
-
-    // Display reply form when clicking reply button
-    const replyButtons = document.querySelectorAll('.show-reply-form');
-
-    if (replyButtons.length) {
-        replyButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-
-                const inquiryId = this.getAttribute('data-inquiry-id');
-                const replyForm = document.getElementById(`reply-form-${inquiryId}`);
-
-                if (replyForm) {
-                    // Toggle the form visibility
-                    if (replyForm.style.display === 'none' || !replyForm.style.display) {
-                        replyForm.style.display = 'block';
-                        this.textContent = 'Cancel Reply';
-                    } else {
-                        replyForm.style.display = 'none';
-                        this.textContent = 'Reply';
-                    }
-                }
-            });
-        });
-    }
+    });
 
     // Toggle featured property status
     const toggleFeaturedBtns = document.querySelectorAll('.toggle-featured-btn');

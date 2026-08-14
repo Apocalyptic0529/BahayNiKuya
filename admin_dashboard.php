@@ -25,8 +25,11 @@ $users = getAllUsers();
 // Get all reports
 $reports = getAllReports();
 
+// Get all inquiries for the administrator
+$inquiries = getUserInquiries($_SESSION['user_id'], 'admin');
+
 // Additional scripts
-$additionalScripts = '<script src="assets/js/admin.js"></script>';
+$additionalScripts = '<script src="assets/js/admin.js"></script><script src="assets/js/dashboard.js"></script>';
 
 require_once 'includes/header.php';
 ?>
@@ -52,6 +55,11 @@ require_once 'includes/header.php';
                 </a>
             </li>
             
+            <li>
+                <a href="?tab=inquiries" class="<?php echo $currentTab === 'inquiries' ? 'active' : ''; ?>">
+                    <i class="fas fa-envelope"></i> All Inquiries
+                </a>
+            </li>
             <li>
                 <a href="?tab=reports" class="<?php echo $currentTab === 'reports' ? 'active' : ''; ?>">
                     <i class="fas fa-flag"></i> Reports
@@ -150,14 +158,14 @@ require_once 'includes/header.php';
                                 <tr>
                                     <td>
                                         <div class="property-mini">
-                                            <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
+                                            <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
                                             <span><?php echo $property['title']; ?></span>
                                         </div>
                                     </td>
                                     <td><?php echo $property['seller_name']; ?></td>
                                     <td><?php echo formatCurrency($property['price']); ?></td>
                                     <td>
-                                        <span class="badge <?php 
+                                        <span class="property-status badge <?php 
                                             switch($property['status']) {
                                                 case 'pending': echo 'badge-warning'; break;
                                                 case 'for_sale': echo 'badge-primary'; break;
@@ -299,7 +307,7 @@ require_once 'includes/header.php';
                                     <td><?php echo $property['id']; ?></td>
                                     <td>
                                         <div class="property-mini">
-                                            <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
+                                            <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
                                             <span><?php echo $property['title']; ?></span>
                                         </div>
                                     </td>
@@ -420,6 +428,56 @@ require_once 'includes/header.php';
                     </table>
                 </div>
             </div>
+        <?php elseif ($currentTab === 'inquiries'): ?>
+            <div class="tab-content active" id="inquiries">
+                <h2>All Inquiries</h2>
+                <?php if (empty($inquiries)): ?>
+                    <div class="alert alert-info">There are no inquiries yet.</div>
+                <?php else: ?>
+                    <div class="inquiries-list">
+                        <?php foreach ($inquiries as $inquiry): ?>
+                            <div class="inquiry-card" id="inquiry-<?php echo (int)$inquiry['id']; ?>">
+                                <div class="inquiry-header">
+                                    <div>
+                                        <h3><?php echo htmlspecialchars($inquiry['property_title'] ?? 'Property'); ?></h3>
+                                        <p>Buyer: <?php echo htmlspecialchars($inquiry['buyer_name'] ?? 'Unknown'); ?> | Seller: <?php echo htmlspecialchars($inquiry['seller_name'] ?? 'Unknown'); ?></p>
+                                        <span class="inquiry-status badge" data-inquiry-id="<?php echo (int)$inquiry['id']; ?>"><?php echo htmlspecialchars(ucfirst($inquiry['status'])); ?></span>
+                                    </div>
+                                    <div class="inquiry-actions">
+                                        <a href="property_details.php?id=<?php echo (int)$inquiry['property_id']; ?>" class="btn btn-info btn-sm">View Property</a>
+                                        <?php if ($inquiry['status'] !== 'closed'): ?>
+                                            <button type="button" class="btn btn-secondary btn-sm update-inquiry-status" data-inquiry-id="<?php echo (int)$inquiry['id']; ?>" data-status="closed">Close</button>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                                <div class="inquiry-body">
+                                    <div class="conversation-thread">
+                                        <?php foreach (($inquiry['messages'] ?? []) as $message): ?>
+                                            <div class="message-box <?php echo $message['sender_role'] === 'buyer' ? 'buyer-message-box' : ($message['sender_role'] === 'seller' ? 'seller-message-box' : 'admin-message-box'); ?>">
+                                                <h4><?php echo htmlspecialchars($message['sender_name']); ?> <small>(<?php echo htmlspecialchars(ucfirst($message['sender_role'])); ?>)</small></h4>
+                                                <div class="message">
+                                                    <p><?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
+                                                    <small class="text-muted"><?php echo formatDate($message['created_at']); ?></small>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <div class="reply-section">
+                                        <button type="button" class="btn btn-primary show-reply-form" data-inquiry-id="<?php echo (int)$inquiry['id']; ?>">Reply as Admin</button>
+                                        <div id="reply-form-<?php echo (int)$inquiry['id']; ?>" class="reply-form" style="display:none;">
+                                            <form class="reply-inquiry-form">
+                                                <input type="hidden" name="inquiry_id" value="<?php echo (int)$inquiry['id']; ?>">
+                                                <textarea name="reply_message" class="form-control" rows="4" required placeholder="Write a reply..."></textarea>
+                                                <button type="submit" class="btn btn-primary">Send Reply</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         <?php elseif ($currentTab === 'reports'): ?>
             <!-- Reports Tab -->
             <div class="tab-content active" id="reports">
@@ -523,7 +581,7 @@ require_once 'includes/header.php';
                                 <tr>
                                     <td>
                                         <div class="property-mini">
-                                            <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
+                                            <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
                                             <span><?php echo $property['title']; ?></span>
                                         </div>
                                     </td>
@@ -735,49 +793,6 @@ require_once 'includes/header.php';
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Common function to handle property approval/rejection
-    function handlePropertyAction(propertyId, action, btn) {
-        fetch('api/admin/property_actions.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                property_id: propertyId,
-                action: action
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                // Reload the page to show updated status
-                window.location.reload();
-            } else {
-                alert('Failed to ' + action + ' property. ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred while ' + action + 'ing property.');
-        });
-    }
-
-    // Approve property button click event
-    document.querySelectorAll('.approve-property-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const propertyId = this.dataset.propertyId;
-            handlePropertyAction(propertyId, 'approve', this);
-        });
-    });
-
-    // Reject property button click event
-    document.querySelectorAll('.reject-property-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const propertyId = this.dataset.propertyId;
-            handlePropertyAction(propertyId, 'reject', this);
-        });
-    });
-
     // Delete property button click event
     document.querySelectorAll('.delete-property-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {

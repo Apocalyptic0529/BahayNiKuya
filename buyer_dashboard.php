@@ -104,7 +104,7 @@ require_once 'includes/header.php';
                         ?>
                             <div class="card">
                                 <div class="card-image">
-                                    <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>">
                                 </div>
                                 <div class="card-body">
                                     <div class="card-price"><?php echo formatCurrency($property['price']); ?></div>
@@ -150,7 +150,7 @@ require_once 'includes/header.php';
                                     <tr>
                                         <td>
                                             <div class="property-mini">
-                                                <img src="<?php echo $inquiry['image1']; ?>" alt="<?php echo $inquiry['property_title']; ?>" width="50" height="50">
+                                                <img src="<?php echo htmlspecialchars(propertyImageUrl($inquiry['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $inquiry['property_title']; ?>" width="50" height="50">
                                                 <span><?php echo $inquiry['property_title']; ?></span>
                                             </div>
                                         </td>
@@ -194,7 +194,7 @@ require_once 'includes/header.php';
                         <?php foreach($favorites as $property): ?>
                             <div class="card">
                                 <div class="card-image">
-                                    <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>">
                                 </div>
                                 <div class="card-body">
                                     <div class="card-price"><?php echo formatCurrency($property['price']); ?></div>
@@ -228,7 +228,7 @@ require_once 'includes/header.php';
                             <div class="inquiry-card" id="inquiry-<?php echo $inquiry['id']; ?>">
                                 <div class="inquiry-header">
                                     <div class="property-mini">
-                                        <img src="<?php echo $inquiry['image1']; ?>" alt="<?php echo $inquiry['property_title']; ?>" width="80" height="80">
+                                        <img src="<?php echo htmlspecialchars(propertyImageUrl($inquiry['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $inquiry['property_title']; ?>" width="80" height="80">
                                         <div>
                                             <h3><?php echo $inquiry['property_title']; ?></h3>
                                             <p>Seller: <?php echo $inquiry['seller_name']; ?></p>
@@ -249,22 +249,29 @@ require_once 'includes/header.php';
                                 </div>
 
                                 <div class="inquiry-body">
-                                    <div class="message-box">
-                                        <h4>Your Inquiry</h4>
-                                        <div class="message buyer-message">
-                                            <p><?php echo nl2br($inquiry['message']); ?></p>
-                                            <small class="text-muted">Sent on: <?php echo formatDate($inquiry['created_at']); ?></small>
-                                        </div>
-                                        <?php if ($inquiry['status'] === 'replied' && !empty($inquiry['reply_message'])): ?>
-                                        <div class="seller-reply mt-3">
-                                            <h4>Seller's Reply</h4>
-                                            <div class="message seller-message">
-                                                <p><?php echo nl2br($inquiry['reply_message']); ?></p>
-                                                <small class="text-muted">Replied on: <?php echo formatDate($inquiry['reply_date']); ?></small>
+                                    <div class="conversation-thread">
+                                        <?php foreach (($inquiry['messages'] ?? []) as $message): ?>
+                                            <div class="message-box <?php echo $message['sender_role'] === 'buyer' ? 'buyer-message-box' : 'seller-message-box'; ?>">
+                                                <h4><?php echo $message['sender_role'] === 'buyer' ? 'You' : htmlspecialchars($message['sender_name'] ?? 'Seller'); ?></h4>
+                                                <div class="message <?php echo $message['sender_role'] === 'buyer' ? 'buyer-message' : 'seller-message'; ?>">
+                                                    <p><?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
+                                                    <small class="text-muted"><?php echo formatDate($message['created_at']); ?></small>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php if ($inquiry['status'] !== 'closed'): ?>
+                                        <div class="reply-section">
+                                            <button type="button" class="btn btn-primary show-reply-form" data-inquiry-id="<?php echo (int)$inquiry['id']; ?>">Reply</button>
+                                            <div id="reply-form-<?php echo (int)$inquiry['id']; ?>" class="reply-form" style="display:none;">
+                                                <form class="reply-inquiry-form">
+                                                    <input type="hidden" name="inquiry_id" value="<?php echo (int)$inquiry['id']; ?>">
+                                                    <textarea name="reply_message" class="form-control" rows="4" required placeholder="Write a reply to the seller..."></textarea>
+                                                    <button type="submit" class="btn btn-primary">Send Reply</button>
+                                                </form>
                                             </div>
                                         </div>
-                                        <?php endif; ?>
-                                    </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; ?>

@@ -17,6 +17,36 @@ function sanitize($data) {
     return $data;
 }
 
+
+/**
+ * Convert a stored property image value into a browser-safe URL.
+ * Supports local uploads stored as relative paths and external image URLs.
+ */
+function propertyImageUrl($image) {
+    $image = trim((string)$image);
+    if ($image === '') {
+        return '';
+    }
+
+    // External URLs can be used directly.
+    if (preg_match('#^https?://#i', $image)) {
+        return $image;
+    }
+
+    // Normalize Windows/backslash paths and leading ./ or /.
+    $image = str_replace('\\', '/', $image);
+    $image = preg_replace('#^\./+#', '', $image);
+
+    // If an absolute filesystem path was accidentally stored, keep only the
+    // public uploads portion. This prevents exposing server filesystem paths.
+    $uploadsPos = stripos($image, 'uploads/');
+    if ($uploadsPos !== false) {
+        $image = substr($image, $uploadsPos);
+    }
+
+    return '/' . ltrim($image, '/');
+}
+
 /**
  * Get all properties with optional filters
  * 
@@ -210,8 +240,55 @@ function getUserInquiries($userId, $role, $filters = []) {
     
     if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
+            $row['messages'] = [];
+            // Preserve the original inquiry as the first message for the
+            // conversation view. New replies are stored in inquiry_messages.
+            $row['messages'][] = [
+                'sender_role' => 'buyer',
+                'sender_id' => (int) ($row['buyer_id'] ?? 0),
+                'sender_name' => $row['buyer_name'] ?? 'Buyer',
+                'message' => $row['message'] ?? '',
+                'created_at' => $row['created_at'] ?? ''
+            ];
+            if (!empty($row['reply_message'])) {
+                $row['messages'][] = [
+                    'sender_role' => 'seller',
+                    'sender_id' => (int) ($row['seller_id'] ?? 0),
+                    'sender_name' => $row['seller_name'] ?? 'Seller',
+                    'message' => $row['reply_message'],
+                    'created_at' => $row['reply_date'] ?? $row['updated_at'] ?? ''
+                ];
+            }
             $inquiries[] = $row;
         }
+    }
+
+    // Load the conversation messages once per request and merge them into the
+    // inquiry records. This avoids one Firestore request per message/inquiry.
+    if (!empty($inquiries)) {
+        $messageResult = $conn->query("SELECT * FROM inquiry_messages ORDER BY created_at ASC");
+        $messagesByInquiry = [];
+        if ($messageResult && $messageResult->num_rows > 0) {
+            while ($message = $messageResult->fetch_assoc()) {
+                $messagesByInquiry[(int) ($message['inquiry_id'] ?? 0)][] = $message;
+            }
+        }
+        foreach ($inquiries as &$inquiry) {
+            $id = (int) $inquiry['id'];
+            if (!empty($messagesByInquiry[$id])) {
+                $inquiry['messages'] = [];
+                foreach ($messagesByInquiry[$id] as $message) {
+                    $inquiry['messages'][] = [
+                        'sender_role' => $message['sender_role'] ?? '',
+                        'sender_id' => (int) ($message['sender_id'] ?? 0),
+                        'sender_name' => $message['sender_name'] ?? ucfirst($message['sender_role'] ?? 'User'),
+                        'message' => $message['message'] ?? '',
+                        'created_at' => $message['created_at'] ?? ''
+                    ];
+                }
+            }
+        }
+        unset($inquiry);
     }
     
     return $inquiries;

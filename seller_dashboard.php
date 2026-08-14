@@ -140,7 +140,7 @@ require_once 'includes/header.php';
                                     <tr>
                                         <td>
                                             <div class="property-mini">
-                                                <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
+                                                <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
                                                 <span><?php echo $property['title']; ?></span>
                                             </div>
                                         </td>
@@ -201,7 +201,7 @@ require_once 'includes/header.php';
                                     <tr>
                                         <td>
                                             <div class="property-mini">
-                                                <img src="<?php echo $inquiry['image1']; ?>" alt="<?php echo $inquiry['property_title']; ?>" width="50" height="50">
+                                                <img src="<?php echo htmlspecialchars(propertyImageUrl($inquiry['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $inquiry['property_title']; ?>" width="50" height="50">
                                                 <span><?php echo $inquiry['property_title']; ?></span>
                                             </div>
                                         </td>
@@ -266,7 +266,7 @@ require_once 'includes/header.php';
                                     <tr>
                                         <td>
                                             <div class="property-mini">
-                                                <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
+                                                <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>" width="50" height="50">
                                                 <span><?php echo $property['title']; ?></span>
                                             </div>
                                         </td>
@@ -321,7 +321,7 @@ require_once 'includes/header.php';
                             <div class="inquiry-card" id="inquiry-<?php echo $inquiry['id']; ?>">
                                 <div class="inquiry-header">
                                     <div class="property-mini">
-                                        <img src="<?php echo $inquiry['image1']; ?>" alt="<?php echo $inquiry['property_title']; ?>" width="80" height="80">
+                                        <img src="<?php echo htmlspecialchars(propertyImageUrl($inquiry['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $inquiry['property_title']; ?>" width="80" height="80">
                                         <div>
                                             <h3><?php echo $inquiry['property_title']; ?></h3>
                                             <p>From: <?php echo $inquiry['buyer_name']; ?></p>
@@ -347,11 +347,16 @@ require_once 'includes/header.php';
                                 </div>
 
                                 <div class="inquiry-body">
-                                    <div class="message-box">
-                                        <h4>Buyer's Inquiry</h4>
-                                        <div class="message buyer-message">
-                                            <p><?php echo nl2br($inquiry['message']); ?></p>
-                                        </div>
+                                    <div class="conversation-thread">
+                                        <?php foreach (($inquiry['messages'] ?? []) as $message): ?>
+                                            <div class="message-box <?php echo $message['sender_role'] === 'buyer' ? 'buyer-message-box' : ($message['sender_role'] === 'seller' ? 'seller-message-box' : 'admin-message-box'); ?>">
+                                                <h4><?php echo $message['sender_role'] === 'seller' ? 'You' : htmlspecialchars($message['sender_name'] ?? ucfirst($message['sender_role'] ?? 'User')); ?></h4>
+                                                <div class="message <?php echo $message['sender_role'] === 'buyer' ? 'buyer-message' : 'seller-message'; ?>">
+                                                    <p><?php echo nl2br(htmlspecialchars($message['message'])); ?></p>
+                                                    <small class="text-muted"><?php echo formatDate($message['created_at']); ?></small>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
                                     </div>
 
                                     <?php if ($inquiry['status'] === 'new'): ?>

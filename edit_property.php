@@ -278,7 +278,7 @@ require_once 'includes/header.php';
                     <input type="hidden" name="current_image1" value="<?php echo htmlspecialchars($property['image1']); ?>">
                 </div>
                 <div class="image-preview-container">
-                    <img id="image-preview-1" class="image-preview" src="<?php echo htmlspecialchars($property['image1']); ?>">
+                    <img id="image-preview-1" class="image-preview" src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>">
                 </div>
             </div>
             
@@ -287,7 +287,7 @@ require_once 'includes/header.php';
                 <input type="url" id="image2" name="image2" class="form-control" value="<?php echo htmlspecialchars($property['image2'] ?? ''); ?>">
                 <div class="image-preview-container">
                     <?php if(!empty($property['image2'])): ?>
-                    <img id="image-preview-2" class="image-preview" src="<?php echo htmlspecialchars($property['image2']); ?>">
+                    <img id="image-preview-2" class="image-preview" src="<?php echo htmlspecialchars(propertyImageUrl($property['image2'] ?? ''), ENT_QUOTES); ?>">
                     <?php else: ?>
                     <img id="image-preview-2" class="image-preview" style="display: none;">
                     <?php endif; ?>
@@ -299,7 +299,7 @@ require_once 'includes/header.php';
                 <input type="url" id="image3" name="image3" class="form-control" value="<?php echo htmlspecialchars($property['image3'] ?? ''); ?>">
                 <div class="image-preview-container">
                     <?php if(!empty($property['image3'])): ?>
-                    <img id="image-preview-3" class="image-preview" src="<?php echo htmlspecialchars($property['image3']); ?>">
+                    <img id="image-preview-3" class="image-preview" src="<?php echo htmlspecialchars(propertyImageUrl($property['image3'] ?? ''), ENT_QUOTES); ?>">
                     <?php else: ?>
                     <img id="image-preview-3" class="image-preview" style="display: none;">
                     <?php endif; ?>
@@ -311,7 +311,7 @@ require_once 'includes/header.php';
                 <input type="url" id="image4" name="image4" class="form-control" value="<?php echo htmlspecialchars($property['image4'] ?? ''); ?>">
                 <div class="image-preview-container">
                     <?php if(!empty($property['image4'])): ?>
-                    <img id="image-preview-4" class="image-preview" src="<?php echo htmlspecialchars($property['image4']); ?>">
+                    <img id="image-preview-4" class="image-preview" src="<?php echo htmlspecialchars(propertyImageUrl($property['image4'] ?? ''), ENT_QUOTES); ?>">
                     <?php else: ?>
                     <img id="image-preview-4" class="image-preview" style="display: none;">
                     <?php endif; ?>

@@ -55,6 +55,8 @@ CREATE TABLE IF NOT EXISTS inquiries (
     message TEXT NOT NULL,
     reply_message TEXT,
     reply_date TIMESTAMP NULL,
+    buyer_reply_message TEXT,
+    buyer_reply_date TIMESTAMP NULL,
     status ENUM('new', 'read', 'replied', 'closed') DEFAULT 'new',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -62,6 +64,21 @@ CREATE TABLE IF NOT EXISTS inquiries (
     FOREIGN KEY (property_id) REFERENCES properties(id) ON DELETE CASCADE,
     FOREIGN KEY (buyer_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (seller_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+-- Conversation messages for buyer/seller/admin replies
+CREATE TABLE IF NOT EXISTS inquiry_messages (
+    id INT(11) NOT NULL AUTO_INCREMENT,
+    inquiry_id INT(11) NOT NULL,
+    sender_id INT(11) NOT NULL,
+    sender_role VARCHAR(20) NOT NULL,
+    sender_name VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    FOREIGN KEY (inquiry_id) REFERENCES inquiries(id) ON DELETE CASCADE
 );
 
 -- Seller Applications table

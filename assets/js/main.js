@@ -8,6 +8,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileNavToggle) {
         mobileNavToggle.addEventListener('click', function() {
             mainNav.classList.toggle('show');
+            mobileNavToggle.setAttribute('aria-expanded', mainNav.classList.contains('show') ? 'true' : 'false');
+        });
+    }
+
+    // Close the mobile navigation after selecting a page.
+    if (mainNav) {
+        mainNav.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768 && !this.classList.contains('user-menu-toggle')) {
+                    mainNav.classList.remove('show');
+                    if (mobileNavToggle) mobileNavToggle.setAttribute('aria-expanded', 'false');
+                }
+            });
         });
     }
     

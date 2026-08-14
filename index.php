@@ -116,7 +116,7 @@ $properties = empty($filters) ? [] : getProperties($filters);
                 <?php foreach($properties as $property): ?>
                     <div class="card">
                         <div class="card-image">
-                            <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                            <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>">
                         </div>
                         <div class="card-body">
                             <div class="card-price"><?php echo formatCurrency($property['price']); ?></div>
@@ -152,7 +152,7 @@ $properties = empty($filters) ? [] : getProperties($filters);
             <?php foreach($featuredProperties as $property): ?>
                 <div class="card">
                     <div class="card-image">
-                        <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                        <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>">
                     </div>
                     <div class="card-body">
                         <div class="card-price"><?php echo formatCurrency($property['price']); ?></div>
@@ -261,7 +261,7 @@ $properties = empty($filters) ? [] : getProperties($filters);
             <?php foreach($apartments as $property): ?>
                 <div class="card">
                     <div class="card-image">
-                        <img src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                        <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="<?php echo $property['title']; ?>">
                     </div>
                     <div class="card-body">
                         <div class="card-price"><?php echo formatCurrency($property['price']); ?></div>

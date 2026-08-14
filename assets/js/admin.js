@@ -504,4 +504,60 @@ if (toggleFeaturedBtns.length) {
             });
         });
     });
+
+    // Property approval/rejection. Event delegation makes this work for every
+    // property table, including rows refreshed without a full page reload.
+    document.addEventListener('click', function(e) {
+        const actionBtn = e.target.closest('.approve-property-btn, .reject-property-btn');
+        if (!actionBtn) return;
+        e.preventDefault();
+        if (actionBtn.disabled) return;
+
+        const propertyId = actionBtn.getAttribute('data-property-id');
+        const action = actionBtn.classList.contains('approve-property-btn') ? 'approve' : 'reject';
+        const row = actionBtn.closest('tr');
+        const buttons = row ? row.querySelectorAll('.approve-property-btn, .reject-property-btn') : [actionBtn];
+
+        if (!confirm(`Are you sure you want to ${action} this property?`)) return;
+        buttons.forEach(btn => { btn.disabled = true; btn.dataset.originalText = btn.textContent; btn.textContent = action === 'approve' ? 'Approving...' : 'Rejecting...'; });
+
+        fetch('api/admin/property_actions.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({property_id: propertyId, action: action})
+        })
+        .then(async response => {
+            const text = await response.text();
+            let data;
+            try { data = JSON.parse(text); }
+            catch (_) { throw new Error('The server returned an invalid response. Please check the Render logs.'); }
+            if (!response.ok || data.status !== 'success') throw new Error(data.message || `Failed to ${action} property.`);
+            return data;
+        })
+        .then(() => {
+            if (!row) {
+                window.location.reload();
+                return;
+            }
+
+            const statusBadge = row.querySelector('.property-status');
+            if (statusBadge) {
+                const approved = action === 'approve';
+                statusBadge.textContent = approved ? 'For Sale' : 'Rejected';
+                statusBadge.className = 'property-status badge ' + (approved ? 'badge-primary' : 'badge-danger');
+                const actionButtons = row.querySelectorAll('.approve-property-btn, .reject-property-btn');
+                actionButtons.forEach(btn => btn.remove());
+            } else {
+                // This is the Pending Approvals table, which has no status
+                // column. Remove the processed row from that queue immediately.
+                row.remove();
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            buttons.forEach(btn => { btn.disabled = false; if (btn.dataset.originalText) btn.textContent = btn.dataset.originalText; });
+            alert(error.message || `An error occurred while trying to ${action} the property.`);
+        });
+    });
+
 });

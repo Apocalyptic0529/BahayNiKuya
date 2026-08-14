@@ -189,8 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'reply':
-            // Reply to an inquiry - seller only
-            if (!hasRole('seller') && !hasRole('admin')) {
+            // Replies are allowed for the buyer, seller, or administrator.
+            // The participant check below ensures users can only reply to
+            // inquiries in which they are actually involved.
+            if (!hasRole('buyer') && !hasRole('seller') && !hasRole('admin')) {
                 echo json_encode([
                     'status' => 'error',
                     'message' => 'Permission denied'
@@ -228,37 +230,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $inquiry = $result->fetch_assoc();
             $stmt->close();
 
-            // Check if user has permission
-            if (hasRole('seller') && $inquiry['seller_id'] != $_SESSION['user_id']) {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'You do not have permission to reply to this inquiry'
-                ]);
-                exit;
+            $currentUserId = (int) $_SESSION['user_id'];
+            $currentRole = strtolower(trim((string) ($_SESSION['user_role'] ?? '')));
+
+            // A seller can reply only to their own inquiries; a buyer can reply
+            // only to their own inquiry; admins can moderate/reply to any inquiry.
+            if ($currentRole === 'seller' && (int) $inquiry['seller_id'] !== $currentUserId) {
+                jsonResponse(['status' => 'error', 'message' => 'You do not have permission to reply to this inquiry'], 403);
+            }
+            if ($currentRole === 'buyer' && (int) $inquiry['buyer_id'] !== $currentUserId) {
+                jsonResponse(['status' => 'error', 'message' => 'You do not have permission to reply to this inquiry'], 403);
             }
 
-            // Update inquiry status and reply message
-            $query = "UPDATE inquiries SET status = 'replied', reply_message = ?, reply_date = CURRENT_TIMESTAMP WHERE id = ?";
-            $stmt = $conn->prepare($query);
-            $stmt->bind_param("si", $message, $inquiryId);
+            $currentUser = getCurrentUser();
+            $senderName = $currentUser['name'] ?? ucfirst($currentRole);
+
+            // Store every reply as a separate message so the conversation is not
+            // overwritten when the buyer and seller exchange multiple replies.
+            $messageQuery = "INSERT INTO inquiry_messages (inquiry_id, sender_id, sender_role, sender_name, message) VALUES (?, ?, ?, ?, ?)";
+            $messageStmt = $conn->prepare($messageQuery);
+            $messageStmt->bind_param("iisss", $inquiryId, $currentUserId, $currentRole, $senderName, $message);
+
+            if (!$messageStmt->execute()) {
+                jsonResponse(['status' => 'error', 'message' => 'Error saving reply: ' . $conn->error], 500);
+            }
+            $messageStmt->close();
+
+            // Keep the legacy reply fields populated for compatibility with
+            // older records/pages, while the new message collection holds the
+            // complete conversation.
+            if ($currentRole === 'seller' || $currentRole === 'admin') {
+                $query = "UPDATE inquiries SET status = 'replied', reply_message = ?, reply_date = CURRENT_TIMESTAMP WHERE id = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->bind_param("si", $message, $inquiryId);
+            } else {
+                $query = "UPDATE inquiries SET status = 'replied', buyer_reply_message = ?, buyer_reply_date = CURRENT_TIMESTAMP WHERE id = ?";
+                $stmt = $conn->prepare($query);
+                $stmt->bind_param("si", $message, $inquiryId);
+            }
 
             if ($stmt->execute()) {
-                // Now we would typically send an email or notification here
-                // For this demo, we'll just update the status
-
-                echo json_encode([
+                $stmt->close();
+                $recipient = ($currentRole === 'buyer') ? 'seller' : 'buyer';
+                jsonResponse([
                     'status' => 'success',
-                    'message' => 'Your reply has been sent to the buyer'
-                ]);
-            } else {
-                echo json_encode([
-                    'status' => 'error',
-                    'message' => 'Error sending reply: ' . $conn->error
+                    'message' => 'Your reply has been sent to the ' . $recipient . '.',
+                    'sender_role' => $currentRole
                 ]);
             }
 
+            $error = $conn->error;
             $stmt->close();
-            break;
+            jsonResponse(['status' => 'error', 'message' => 'Error updating inquiry: ' . $error], 500);
 
         default:
             echo json_encode([

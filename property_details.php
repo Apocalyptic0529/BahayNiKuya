@@ -43,29 +43,29 @@ require_once 'includes/header.php';
     <div class="property-main">
         <div class="property-gallery">
             <div class="main-image">
-                <img id="main-property-image" src="<?php echo $property['image1']; ?>" alt="<?php echo $property['title']; ?>">
+                <img id="main-property-image" src="<?php echo propertyImageUrl($property['image1'] ?? ''); ?>" alt="<?php echo $property['title']; ?>">
             </div>
             
             <div class="thumbnail-container">
                 <div class="thumbnail active">
-                    <img src="<?php echo $property['image1']; ?>" alt="Thumbnail 1">
+                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image1'] ?? ''), ENT_QUOTES); ?>" alt="Thumbnail 1">
                 </div>
                 
-                <?php if (!empty($property['image2'])): ?>
+                <?php if (!empty(propertyImageUrl($property['image2'] ?? ''))): ?>
                 <div class="thumbnail">
-                    <img src="<?php echo $property['image2']; ?>" alt="Thumbnail 2">
-                </div>
-                <?php endif; ?>
-                
-                <?php if (!empty($property['image3'])): ?>
-                <div class="thumbnail">
-                    <img src="<?php echo $property['image3']; ?>" alt="Thumbnail 3">
+                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image2'] ?? ''), ENT_QUOTES); ?>" alt="Thumbnail 2">
                 </div>
                 <?php endif; ?>
                 
-                <?php if (!empty($property['image4'])): ?>
+                <?php if (!empty(propertyImageUrl($property['image3'] ?? ''))): ?>
                 <div class="thumbnail">
-                    <img src="<?php echo $property['image4']; ?>" alt="Thumbnail 4">
+                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image3'] ?? ''), ENT_QUOTES); ?>" alt="Thumbnail 3">
+                </div>
+                <?php endif; ?>
+                
+                <?php if (!empty(propertyImageUrl($property['image4'] ?? ''))): ?>
+                <div class="thumbnail">
+                    <img src="<?php echo htmlspecialchars(propertyImageUrl($property['image4'] ?? ''), ENT_QUOTES); ?>" alt="Thumbnail 4">
                 </div>
                 <?php endif; ?>
             </div>

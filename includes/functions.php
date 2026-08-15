@@ -402,7 +402,10 @@ function getAllUsers($role = '') {
  * @return string Formatted amount
  */
 function formatCurrency($amount) {
-    return '$' . number_format($amount, 2);
+    if ($amount === null || $amount === '' || !is_numeric($amount)) {
+        return '$0.00';
+    }
+    return '$' . number_format((float) $amount, 2);
 }
 
 /**
@@ -412,7 +415,11 @@ function formatCurrency($amount) {
  * @return string Formatted date
  */
 function formatDate($date) {
-    return date('F j, Y', strtotime($date));
+    if ($date === null || trim((string) $date) === '') {
+        return 'Unknown date';
+    }
+    $timestamp = strtotime((string) $date);
+    return $timestamp !== false ? date('F j, Y', $timestamp) : 'Unknown date';
 }
 
 /**

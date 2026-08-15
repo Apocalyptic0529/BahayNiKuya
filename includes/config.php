@@ -221,7 +221,10 @@ class FirebaseConnection {
                 if ($document !== null) {
                     $remaining = trim($idMatch[2] ?? '');
                     if ($remaining === '' || $this->matches($document, $remaining, $params, $assignments['used'] + 1)) {
-                        $offset = $assignments['used'];
+                        // SET parameters come first in prepared UPDATE statements.
+                        // The WHERE id parameter follows them, so assignments must
+                        // resolve from parameter index 0 rather than from the id index.
+                        $offset = 0;
                         foreach ($assignments['columns'] as $column) {
                             $document[$column] = $this->resolveValue($assignments['values'][$column], $params, $offset);
                         }
@@ -237,7 +240,9 @@ class FirebaseConnection {
         $documents = $this->getCollection($collection);
         foreach ($documents as $document) {
             if (!$this->matches($document, $whereClause, $params, $assignments['used'])) continue;
-            $offset = $assignments['used'];
+            // Prepared UPDATE parameters are ordered as SET values first,
+            // followed by WHERE values. Resolve SET values from index 0.
+            $offset = 0;
             foreach ($assignments['columns'] as $column) {
                 $document[$column] = $this->resolveValue($assignments['values'][$column], $params, $offset);
             }

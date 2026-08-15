@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
             $stmt = $conn->prepare($query);
             $stmt->bind_param(
-                "ssdddssssddssississsi",
+                "ssdiidssssddsssissssi",
                 $title, $description, $price, $bedrooms, $bathrooms, $area,
                 $address, $city, $state, $zip_code, $latitude, $longitude,
                 $property_type, $listing_type, $status, $featured, $image1, $image2, $image3, $image4,
@@ -141,7 +141,7 @@ require_once 'includes/header.php';
 <h1>Edit Property</h1>
 
 <div class="form-container">
-    <form id="property-form" action="edit_property.php?id=<?php echo $propertyId; ?>" method="POST" class="needs-validation">
+    <form id="property-form" action="edit_property.php?id=<?php echo $propertyId; ?>" method="POST" enctype="multipart/form-data" class="needs-validation">
         <div class="form-section">
             <h3>Basic Information</h3>
             
@@ -158,7 +158,7 @@ require_once 'includes/header.php';
             <div class="form-row">
                 <div class="form-group">
                     <label for="price" class="form-label">Price ($) *</label>
-                    <input type="number" id="price" name="price" class="form-control" min="1" step="0.01" value="<?php echo $property['price']; ?>" required>
+                    <input type="number" id="price" name="price" class="form-control" min="1" step="0.01" value="<?php echo ($property['price'] ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
@@ -201,17 +201,17 @@ require_once 'includes/header.php';
             <div class="form-row">
                 <div class="form-group">
                     <label for="bedrooms" class="form-label">Bedrooms *</label>
-                    <input type="number" id="bedrooms" name="bedrooms" class="form-control" min="0" value="<?php echo $property['bedrooms']; ?>" required>
+                    <input type="number" id="bedrooms" name="bedrooms" class="form-control" min="0" value="<?php echo ($property['bedrooms'] ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="bathrooms" class="form-label">Bathrooms *</label>
-                    <input type="number" id="bathrooms" name="bathrooms" class="form-control" min="0" step="0.5" value="<?php echo $property['bathrooms']; ?>" required>
+                    <input type="number" id="bathrooms" name="bathrooms" class="form-control" min="0" step="0.5" value="<?php echo ($property['bathrooms'] ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="area" class="form-label">Area (sq ft) *</label>
-                    <input type="number" id="area" name="area" class="form-control" min="1" step="0.01" value="<?php echo $property['area']; ?>" required>
+                    <input type="number" id="area" name="area" class="form-control" min="1" step="0.01" value="<?php echo ($property['area'] ?? ''); ?>" required>
                 </div>
             </div>
             
@@ -251,12 +251,12 @@ require_once 'includes/header.php';
             <div class="form-row">
                 <div class="form-group">
                     <label for="latitude" class="form-label">Latitude *</label>
-                    <input type="number" id="latitude" name="latitude" class="form-control" step="0.00000001" value="<?php echo $property['latitude']; ?>" required>
+                    <input type="number" id="latitude" name="latitude" class="form-control" step="0.00000001" value="<?php echo ($property['latitude'] ?? ''); ?>" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="longitude" class="form-label">Longitude *</label>
-                    <input type="number" id="longitude" name="longitude" class="form-control" step="0.00000001" value="<?php echo $property['longitude']; ?>" required>
+                    <input type="number" id="longitude" name="longitude" class="form-control" step="0.00000001" value="<?php echo ($property['longitude'] ?? ''); ?>" required>
                 </div>
             </div>
             
@@ -366,18 +366,23 @@ require_once 'includes/header.php';
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize map for location picking
-    const initialLat = <?php echo $property['latitude']; ?>;
-    const initialLng = <?php echo $property['longitude']; ?>;
-    
-    const mapPicker = L.map('map-picker').setView([initialLat, initialLng], 13);
+    const storedLat = <?php echo json_encode(is_numeric($property['latitude'] ?? null) ? (float)$property['latitude'] : null); ?>;
+    const storedLng = <?php echo json_encode(is_numeric($property['longitude'] ?? null) ? (float)$property['longitude'] : null); ?>;
+    const hasStoredCoordinates = Number.isFinite(storedLat) && Number.isFinite(storedLng) &&
+        storedLat >= -90 && storedLat <= 90 && storedLng >= -180 && storedLng <= 180 &&
+        !(storedLat === 0 && storedLng === 0);
+    // Use a neutral Philippines map center only when an old/corrupted record has no coordinates.
+    // Clicking the map immediately writes the actual coordinates into the form.
+    const mapCenter = hasStoredCoordinates ? [storedLat, storedLng] : [12.8797, 121.7740];
+    const mapPicker = L.map('map-picker').setView(mapCenter, hasStoredCoordinates ? 13 : 6);
     
     // Add OpenStreetMap tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(mapPicker);
     
-    // Add initial marker
-    let marker = L.marker([initialLat, initialLng]).addTo(mapPicker);
+    // Add an initial marker only when the stored coordinates are valid.
+    let marker = hasStoredCoordinates ? L.marker([storedLat, storedLng]).addTo(mapPicker) : null;
     
     // Handle click on map
     mapPicker.on('click', function(e) {
@@ -389,40 +394,58 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('longitude').value = lng;
         
         // Update marker position
-        marker.setLatLng(e.latlng);
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(mapPicker);
+        }
     });
     
-    // Image URL preview
+    // Image preview: file inputs use FileReader; URL fields use the URL directly.
     function updateImagePreview(inputId, previewId) {
         const input = document.getElementById(inputId);
         const preview = document.getElementById(previewId);
-        
-        if (input.value) {
-            preview.src = input.value;
-            preview.style.display = 'block';
-            
-            // Handle image load error
-            preview.onerror = function() {
-                preview.style.display = 'none';
-                input.setCustomValidity('Invalid image URL. Please provide a valid URL.');
-            };
-            
-            preview.onload = function() {
-                input.setCustomValidity('');
-            };
-        } else {
-            preview.style.display = 'none';
+        if (!input || !preview) return;
+
+        if (input.type === 'file') {
+            input.addEventListener('change', function() {
+                const file = this.files && this.files[0];
+                if (!file) return;
+                if (!file.type.startsWith('image/')) {
+                    this.setCustomValidity('Please select an image file.');
+                    return;
+                }
+                this.setCustomValidity('');
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+            return;
         }
-    }
-    
-    // Monitor image URL inputs
-    const imageInputs = ['image1', 'image2', 'image3', 'image4'];
-    imageInputs.forEach((id, index) => {
-        const input = document.getElementById(id);
+
         input.addEventListener('input', function() {
-            updateImagePreview(id, `image-preview-${index + 1}`);
+            if (!this.value) {
+                preview.style.display = 'none';
+                this.setCustomValidity('');
+                return;
+            }
+            preview.src = this.value;
+            preview.style.display = 'block';
+            preview.onload = () => this.setCustomValidity('');
+            preview.onerror = () => {
+                preview.style.display = 'none';
+                this.setCustomValidity('Invalid image URL. Please provide a valid URL.');
+            };
         });
-    });
+    }
+
+    updateImagePreview('image1', 'image-preview-1');
+    updateImagePreview('image2', 'image-preview-2');
+    updateImagePreview('image3', 'image-preview-3');
+    updateImagePreview('image4', 'image-preview-4');
 });
 </script>
 

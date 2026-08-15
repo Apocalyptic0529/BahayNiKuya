@@ -95,7 +95,7 @@ require_once 'includes/header.php';
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-home"></i>
-                    <span><?php echo ucfirst($property['property_type']); ?></span>
+                    <span><?php echo htmlspecialchars(ucfirst((string)($property['property_type'] ?? '')), ENT_QUOTES); ?></span>
                 </div>
                 <div class="feature-item">
                     <i class="fas fa-tag"></i>
@@ -109,12 +109,12 @@ require_once 'includes/header.php';
             
             <div class="property-description">
                 <h3>Description</h3>
-                <p><?php echo nl2br($property['description']); ?></p>
+                <p><?php echo nl2br(htmlspecialchars((string)($property['description'] ?? ''), ENT_QUOTES)); ?></p>
             </div>
             
             <div class="property-location">
                 <h3>Location</h3>
-                <div id="property-map" data-latitude="<?php echo $property['latitude']; ?>" data-longitude="<?php echo $property['longitude']; ?>" data-title="<?php echo htmlspecialchars($property['title']); ?>"></div>
+                <div id="property-map" data-latitude="<?php echo htmlspecialchars((string)($property['latitude'] ?? ''), ENT_QUOTES); ?>" data-longitude="<?php echo htmlspecialchars((string)($property['longitude'] ?? ''), ENT_QUOTES); ?>" data-title="<?php echo htmlspecialchars((string)($property['title'] ?? ''), ENT_QUOTES); ?>"></div>
             </div>
             
             <?php if (isLoggedIn() && hasRole('buyer')): ?>
@@ -244,7 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const longitude = parseFloat(propertyMap.getAttribute('data-longitude'));
         const title = propertyMap.getAttribute('data-title');
         
-        if (latitude && longitude) {
+        if (Number.isFinite(latitude) && Number.isFinite(longitude) &&
+            latitude >= -90 && latitude <= 90 && longitude >= -180 && longitude <= 180 &&
+            !(latitude === 0 && longitude === 0)) {
             // Create map centered on property
             const map = L.map('property-map').setView([latitude, longitude], 14);
             
@@ -258,6 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add popup
             marker.bindPopup(`<strong>${title}</strong>`).openPopup();
+        } else {
+            propertyMap.innerHTML = '<div class="map-unavailable">Property coordinates are not available.</div>';
         }
     }
 });

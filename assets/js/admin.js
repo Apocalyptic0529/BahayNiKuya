@@ -426,52 +426,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Handle featured property toggle
-const toggleFeaturedBtns = document.querySelectorAll('.toggle-featured-btn');
-if (toggleFeaturedBtns.length) {
-    toggleFeaturedBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const propertyId = this.getAttribute('data-property-id');
-            const featured = this.getAttribute('data-featured') === '1';
-
-            const action = featured ? 'unfeature' : 'feature';
-            if (confirm('Are you sure you want to ' + (featured ? 'remove' : 'set') + ' this property as featured?')) {
-
-            fetch('api/properties.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'toggle_featured',
-                    property_id: propertyId,
-                    featured: !featured
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Update button state
-                    this.setAttribute('data-featured', featured ? '0' : '1');
-                    const icon = this.querySelector('i');
-                    if (featured) {
-                        this.innerHTML = '<i class="far fa-star"></i> Set Featured';
-                    } else {
-                        this.innerHTML = '<i class="fas fa-star"></i> Featured';
-                    }
-                } else {
-                    alert(data.message || 'Error updating featured status');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the property');
-            });
-        }
-        });
-    });
-}
-
     // Dismiss report functionality
     const dismissReportBtns = document.querySelectorAll('.dismiss-report-btn');
     dismissReportBtns.forEach(btn => {

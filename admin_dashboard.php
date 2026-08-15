@@ -331,8 +331,12 @@ require_once 'includes/header.php';
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm toggle-featured-btn" data-property-id="<?php echo $property['id']; ?>" data-featured="<?php echo $property['featured']; ?>">
-                                            <?php if ($property['featured']): ?>
+                                        <button class="btn btn-sm toggle-featured-btn"
+                                                data-property-id="<?php echo (int)$property['id']; ?>"
+                                                data-featured="<?php echo !empty($property['featured']) ? '1' : '0'; ?>"
+                                                data-status="<?php echo htmlspecialchars((string)($property['status'] ?? ''), ENT_QUOTES); ?>"
+                                                <?php echo in_array(($property['status'] ?? ''), ['for_sale', 'for_rent'], true) ? '' : 'disabled title="Only approved properties can be featured."'; ?>>
+                                            <?php if (!empty($property['featured'])): ?>
                                                 <i class="fas fa-star"></i> Featured
                                             <?php else: ?>
                                                 <i class="far fa-star"></i> Set Featured
@@ -828,34 +832,41 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Toggle featured property button click event
-    document.querySelectorAll('.toggle-featured-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+    document.querySelectorAll('.toggle-featured-btn:not([disabled])').forEach(btn => {
+        btn.addEventListener('click', async function() {
             const propertyId = this.dataset.propertyId;
-            const featured = this.dataset.featured === '1';
-            const action = featured ? 'unfeature' : 'feature';
+            const currentlyFeatured = this.dataset.featured === '1';
+            const action = currentlyFeatured ? 'unfeature' : 'feature';
+            const originalHtml = this.innerHTML;
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-            fetch('api/admin/property_actions.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    property_id: propertyId,
-                    action: action
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    window.location.reload();
-                } else {
-                    alert('Failed to toggle featured status. ' + data.message);
+            try {
+                const response = await fetch('api/admin/property_actions.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({property_id: propertyId, action})
+                });
+                const text = await response.text();
+                let data;
+                try { data = JSON.parse(text); }
+                catch (e) { throw new Error('The server returned an invalid response.'); }
+
+                if (data.status !== 'success') {
+                    throw new Error(data.message || 'Failed to update featured status.');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while toggling featured status.');
-            });
+
+                this.dataset.featured = currentlyFeatured ? '0' : '1';
+                this.innerHTML = currentlyFeatured
+                    ? '<i class="far fa-star"></i> Set Featured'
+                    : '<i class="fas fa-star"></i> Featured';
+                this.disabled = false;
+            } catch (error) {
+                console.error(error);
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+                alert(error.message || 'An error occurred while updating the featured status.');
+            }
         });
     });
 
